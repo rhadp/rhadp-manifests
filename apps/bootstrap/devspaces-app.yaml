@@ -15,8 +15,8 @@ spec:
     directory:
       recurse: false
     path: apps/devspaces
-    repoURL: "{{ rhadp_gitops_repo_url }}"
-    targetRevision: "{{ rhadp_gitops_repo_revision }}"
+    repoURL: "https://github.com/rhadp/rhadp-manifests"
+    targetRevision: "main"
   destination:
     namespace: "rhadp-devspaces"
     server: https://kubernetes.default.svc
