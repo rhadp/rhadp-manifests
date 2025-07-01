@@ -1,0 +1,10 @@
+secrets/**
+inventory/**
+**/users.htpasswd
+openshift-install
+env.sh
+
+hack/**
+hack.*
+**hack**.yml
+cheatsheet.md
