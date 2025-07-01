@@ -9,5 +9,7 @@ spec:
   destinations:
     - namespace: "rhadp-infra"
       server: "*"
+    - namespace: "rhadp-devspaces"
+      server: "*"
   sourceRepos:
     - "*"
