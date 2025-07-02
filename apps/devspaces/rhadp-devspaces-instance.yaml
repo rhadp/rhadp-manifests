@@ -1,0 +1,65 @@
+apiVersion: org.eclipse.che/v2
+kind: CheCluster
+metadata:
+  name: rhadp-devspaces
+spec:
+  components:
+    cheServer:
+      debug: false
+      logLevel: INFO
+
+    dashboard:
+      headerMessage:
+        show: true
+        text: "RH Automotive Development Platform"
+    
+    devWorkspace: {}
+
+    devfileRegistry: {}
+    
+    database:
+      credentialsSecretName: postgres-credentials
+      externalDb: false
+      postgresDb: dbche
+      postgresHostName: postgres
+      postgresPort: '5432'
+      pvc:
+        claimSize: 1Gi
+    metrics:
+      enable: true
+  
+  containerRegistry: {}
+  
+  devEnvironments:
+    startTimeoutSeconds: 300
+    secondsOfRunBeforeIdling: -1
+    maxNumberOfWorkspacesPerUser: -1
+    maxNumberOfRunningWorkspacesPerUser: 1
+    containerBuildConfiguration:
+      openShiftSecurityContextConstraint: container-build
+    
+    disableContainerBuildCapabilities: true
+    defaultEditor: che-incubator/che-code/latest
+    
+    defaultComponents:
+      - container:
+          sourceMapping: /projects
+          image: "registry.redhat.io/devspaces/udi-rhel8:3.11"
+          cpuRequest: "1"
+          memoryRequest: "1Gi"
+          cpuLimit: "2"
+          memoryLimit: "4Gi"
+        name: universal-developer-image
+    
+    defaultNamespace:
+      autoProvision: true
+      template: devspaces-<username>
+    secondsOfInactivityBeforeIdling: 1800
+    storage:
+      pvcStrategy: per-user
+  
+  #gitServices:
+  #  github:
+  #    - secretName: "github-oauth-config"
+  
+  networking: {}
