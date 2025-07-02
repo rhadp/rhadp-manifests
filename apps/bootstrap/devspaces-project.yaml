@@ -2,12 +2,13 @@ kind: AppProject
 apiVersion: argoproj.io/v1alpha1
 metadata:
   name: "rhadp-devspaces"
+  namespace: "openshift-gitops"
 spec:
   clusterResourceWhitelist:
     - group: "*"
       kind: "*"
   destinations:
-    - namespace: "rhadp-infra"
+    - namespace: "openshift-gitops"
       server: "*"
     - namespace: "rhadp-devspaces"
       server: "*"
