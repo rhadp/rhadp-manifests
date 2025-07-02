@@ -1,0 +1,34 @@
+kind: Application
+apiVersion: argoproj.io/v1alpha1
+metadata:
+  name: "rhadp-gitops"
+  namespace: "openshift-gitops"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+spec:
+  project: "rhadp-gitops"
+  namespace: "rhadp-gitops"
+  revisionHistoryLimit: 3
+  source:
+    directory:
+      recurse: false
+    path: apps/gitops
+    repoURL: "https://github.com/rhadp/rhadp-manifests"
+    targetRevision: "main"
+  destination:
+    namespace: "rhadp-gitops"
+    server: https://kubernetes.default.svc
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ApplyOutOfSyncOnly=true
+    retry:
+      backoff:
+        duration: 5s # the amount to back off. Default unit is seconds, but could also be a duration (e.g. "2m", "1h")
+        factor: 2 # a factor to multiply the base duration after each failed retry
+        maxDuration: 10m # the maximum amount of time allowed for the backoff strategy
