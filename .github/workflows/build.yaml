@@ -40,7 +40,7 @@ jobs:
       - name: setup buildx
         uses: docker/setup-buildx-action@v3
       
-      - name: metadata
+      - id: metadata
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.QUAY_ORG }}/${{ matrix.name }}
