@@ -19,7 +19,6 @@ jobs:
         include:
           - runs-on: ubuntu-latest
             name: application
-            arch: "amd64, arm64"
 
     runs-on: ${{ matrix.runs-on }}
     permissions:
@@ -34,7 +33,14 @@ jobs:
       
       - name: get version
         run: |
-          VERSION=$(git describe --tags)
+          # Check if there are any tags, if not use a default version
+          if git describe --tags --exact-match HEAD 2>/dev/null; then
+            VERSION=$(git describe --tags --exact-match HEAD)
+          elif git describe --tags 2>/dev/null; then
+            VERSION=$(git describe --tags)
+          else
+            VERSION="0.0.0-$(git rev-parse --short HEAD)"
+          fi
           VERSION=${VERSION#v} # remove the leading v prefix for version
           echo "VERSION=${VERSION}" >> $GITHUB_ENV
           echo "VERSION=${VERSION}"
@@ -73,7 +79,7 @@ jobs:
       - name: build and push
         uses: docker/build-push-action@v6
         with:
-          context: "{{defaultContext}}:containers/${{ matrix.name }}"
+          context: "containers/${{ matrix.name }}"
           push: true
           tags: ${{ steps.set-tags.outputs.tags }}
           labels: ${{ steps.metadata.outputs.labels }}
