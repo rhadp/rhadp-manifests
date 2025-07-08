@@ -39,7 +39,7 @@ jobs:
           elif git describe --tags 2>/dev/null; then
             VERSION=$(git describe --tags)
           else
-            VERSION="0.0.0-$(git rev-parse --short HEAD)"
+            VERSION="$(git rev-parse --short HEAD)"
           fi
           VERSION=${VERSION#v} # remove the leading v prefix for version
           echo "VERSION=${VERSION}" >> $GITHUB_ENV
@@ -77,6 +77,7 @@ jobs:
           images: ${{ env.QUAY_ORG }}/${{ matrix.name }}
       
       - name: build and push
+        id: push
         uses: docker/build-push-action@v6
         with:
           context: "containers/${{ matrix.name }}"
@@ -87,3 +88,10 @@ jobs:
           # FIXME: this is not working, need to figure out why
           #cache-from: type=gha
           #cache-to: type=gha,mode=max
+
+      - name: generate artifact attestation
+        uses: actions/attest-build-provenance@v1
+        with:
+          subject-name: ${{ env.QUAY_ORG }}/${{ matrix.name }}
+          subject-digest: ${{ steps.push.outputs.digest }}
+          push-to-registry: true
