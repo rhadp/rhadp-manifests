@@ -9,6 +9,7 @@ on:
       - 'main'
 
 env:
+  REGISTRY: quay.io
   QUAY_ORG: quay.io/rhadp
 
 jobs:
@@ -19,6 +20,7 @@ jobs:
           - runs-on: ubuntu-latest
             name: application
             arch: "amd64, arm64"
+
     runs-on: ${{ matrix.runs-on }}
     permissions:
       packages: write
@@ -30,6 +32,29 @@ jobs:
         with:
           fetch-depth: 0
       
+      - name: get version
+        run: |
+          VERSION=$(git describe --tags)
+          VERSION=${VERSION#v} # remove the leading v prefix for version
+          echo "VERSION=${VERSION}" >> $GITHUB_ENV
+          echo "VERSION=${VERSION}"
+
+      - name: set image tags
+        id: set-tags
+        run: |
+          TAGS="${{ env.QUAY_ORG }}/${{ matrix.name }}:${{ env.VERSION }}"
+
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            TAGS="$TAGS,${{ env.QUAY_ORG }}/${{ matrix.name }}:latest"
+          fi
+
+          if [[ "${{ github.ref }}" == refs/heads/release-* ]]; then
+            RELEASE_BRANCH_NAME=$(basename "${{ github.ref }}")
+            TAGS="$TAGS,${{ env.QUAY_ORG }}/${{ matrix.name }}:${RELEASE_BRANCH_NAME}"
+          fi
+
+          echo "tags=$TAGS" >> $GITHUB_OUTPUT
+
       - name: login to quay.io
         uses: docker/login-action@v3
         with:
@@ -50,7 +75,8 @@ jobs:
         with:
           context: "{{defaultContext}}:containers/${{ matrix.name }}"
           push: true
-          tags: ${{ steps.metadata.outputs.tags }}
+          tags: ${{ steps.set-tags.outputs.tags }}
           labels: ${{ steps.metadata.outputs.labels }}
+          platforms: linux/amd64,linux/arm64
           cache-from: type=gha
           cache-to: type=gha,mode=max
