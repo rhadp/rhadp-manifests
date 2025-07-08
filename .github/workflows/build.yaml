@@ -84,5 +84,6 @@ jobs:
           tags: ${{ steps.set-tags.outputs.tags }}
           labels: ${{ steps.metadata.outputs.labels }}
           platforms: linux/amd64,linux/arm64
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          # FIXME: this is not working, need to figure out why
+          #cache-from: type=gha
+          #cache-to: type=gha,mode=max
