@@ -19,8 +19,8 @@ jobs:
         include:
           - runs-on: ubuntu-latest
             name: builder
-          - runs-on: ubuntu-latest
-            name: application
+          #- runs-on: ubuntu-latest
+          #  name: application
 
     runs-on: ${{ matrix.runs-on }}
     
