@@ -13,18 +13,23 @@ env:
   QUAY_ORG: quay.io/rhadp
 
 jobs:
-  build-image:
+  build-containers:
     strategy:
       matrix:
         include:
           - runs-on: ubuntu-latest
+            name: builder
+          - runs-on: ubuntu-latest
             name: application
 
     runs-on: ${{ matrix.runs-on }}
+    
     permissions:
       packages: write
       contents: read
-    
+      id-token: write
+      attestations: write
+      
     steps:
       - name: checkout repository
         uses: actions/checkout@v4
@@ -81,13 +86,13 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: "containers/${{ matrix.name }}"
-          push: true
+          file: "containers/${{ matrix.name }}/Containerfile"
           tags: ${{ steps.set-tags.outputs.tags }}
           labels: ${{ steps.metadata.outputs.labels }}
           platforms: linux/amd64,linux/arm64
-          # FIXME: this is not working, need to figure out why
-          #cache-from: type=gha
-          #cache-to: type=gha,mode=max
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          push: true
 
       - name: generate artifact attestation
         uses: actions/attest-build-provenance@v1

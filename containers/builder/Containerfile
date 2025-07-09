@@ -1,0 +1,9 @@
+FROM quay.io/centos/centos:stream9
+
+RUN dnf install -y \
+    epel-release \
+    cmake make g++ git clang-tools-extra \
+    python3.12 python3-pip \
+    compat-openssl11 libbrotli \
+    && dnf clean all \
+    && rm -rf /var/cache/dnf
