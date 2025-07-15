@@ -1,0 +1,13 @@
+FROM ghcr.io/astral-sh/uv:latest AS uv
+
+FROM quay.io/rhadp/builder:latest
+
+COPY --from=uv /uv /uvx /bin/
+
+# install jumpstarter
+ENV UV_PYTHON=python3.12 VIRTUAL_ENV=/jumpstarter
+
+RUN uv venv /jumpstarter && \
+    uv pip install "git+https://github.com/jumpstarter-dev/jumpstarter#subdirectory=packages/jumpstarter-all"
+
+ENV PATH="/jumpstarter/bin:$PATH"

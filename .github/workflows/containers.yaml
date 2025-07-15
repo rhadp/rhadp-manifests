@@ -10,7 +10,7 @@ on:
 
 env:
   REGISTRY: quay.io
-  QUAY_ORG: quay.io/rhadp
+  REGISTRY_ORG: quay.io/rhadp
 
 jobs:
   build-containers:
@@ -19,8 +19,8 @@ jobs:
         include:
           - runs-on: ubuntu-latest
             name: builder
-          #- runs-on: ubuntu-latest
-          #  name: application
+          - runs-on: ubuntu-latest
+            name: codespaces
 
     runs-on: ${{ matrix.runs-on }}
     
@@ -53,33 +53,47 @@ jobs:
       - name: set image tags
         id: set-tags
         run: |
-          TAGS="${{ env.QUAY_ORG }}/${{ matrix.name }}:${{ env.VERSION }}"
+          TAGS="${{ env.REGISTRY_ORG }}/${{ matrix.name }}:${{ env.VERSION }}"
 
           if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
-            TAGS="$TAGS,${{ env.QUAY_ORG }}/${{ matrix.name }}:latest"
+            TAGS="$TAGS,${{ env.REGISTRY_ORG }}/${{ matrix.name }}:latest"
           fi
 
           if [[ "${{ github.ref }}" == refs/heads/release-* ]]; then
             RELEASE_BRANCH_NAME=$(basename "${{ github.ref }}")
-            TAGS="$TAGS,${{ env.QUAY_ORG }}/${{ matrix.name }}:${RELEASE_BRANCH_NAME}"
+            TAGS="$TAGS,${{ env.REGISTRY_ORG }}/${{ matrix.name }}:${RELEASE_BRANCH_NAME}"
           fi
 
           echo "tags=$TAGS" >> $GITHUB_OUTPUT
 
+      - name: enable docker multi-arch support
+        uses: docker/setup-docker-action@v4
+        with:
+          daemon-config: |
+            {
+              "debug": true,
+              "features": {
+                "containerd-snapshotter": true
+              }
+            }
+
       - name: login to quay.io
         uses: docker/login-action@v3
         with:
-          registry: quay.io
-          username: ${{ secrets.QUAY_USERNAME }}
-          password: ${{ secrets.QUAY_TOKEN }}
+          registry: ${{ env.REGISTRY }}
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_TOKEN }}
       
+      - name: setup qemu
+        uses: docker/setup-qemu-action@v3
+
       - name: setup buildx
         uses: docker/setup-buildx-action@v3
       
       - id: metadata
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.QUAY_ORG }}/${{ matrix.name }}
+          images: ${{ env.REGISTRY_ORG }}/${{ matrix.name }}
       
       - name: build and push
         id: push
@@ -97,6 +111,6 @@ jobs:
       - name: generate artifact attestation
         uses: actions/attest-build-provenance@v1
         with:
-          subject-name: ${{ env.QUAY_ORG }}/${{ matrix.name }}
+          subject-name: ${{ env.REGISTRY_ORG }}/${{ matrix.name }}
           subject-digest: ${{ steps.push.outputs.digest }}
           push-to-registry: true
