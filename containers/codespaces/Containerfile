@@ -4,10 +4,15 @@ FROM quay.io/rhadp/builder:latest
 
 COPY --from=uv /uv /uvx /bin/
 
-# install jumpstarter
-ENV UV_PYTHON=python3.12 VIRTUAL_ENV=/jumpstarter
+# set the virtual environment for jumpstarter etc
+ENV UV_PYTHON=python3.12 VIRTUAL_ENV=/venv
 
-RUN uv venv /jumpstarter && \
+# install jumpstarter
+RUN uv venv /venv && \
     uv pip install "git+https://github.com/jumpstarter-dev/jumpstarter#subdirectory=packages/jumpstarter-all"
 
-ENV PATH="/jumpstarter/bin:$PATH"
+# install ansible
+RUN uv venv /venv && \
+    uv pip install ansible boto3
+
+ENV PATH="/venv/bin:$PATH"
