@@ -2,8 +2,20 @@ FROM registry.access.redhat.com/ubi9/s2i-core:9.6
 
 RUN dnf update -y && dnf clean all
 
+# add basic build tools
 RUN dnf install -y \
     cmake make gcc gcc-c++ git clang-tools-extra \
     python3.12 python3-pip \
-    && dnf clean all \
-    && rm -rf /var/cache/dnf
+    zip unzip tar git && \
+    dnf clean all && \
+    rm -rf /var/cache/dnf
+
+# add vcpkg
+RUN cd /opt/app-root && \
+    git clone https://github.com/microsoft/vcpkg.git && \
+    cd vcpkg && \
+    ./bootstrap-vcpkg.sh
+
+ENV VCPKG_DISABLE_METRICS=1
+ENV VCPKG_ROOT=/opt/app-root/vcpkg
+ENV PATH=$VCPKG_ROOT:$PATH
