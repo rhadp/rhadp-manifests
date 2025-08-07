@@ -1,4 +1,4 @@
-name: build container images
+name: build base container image
 on:
   workflow_dispatch:
   
@@ -14,12 +14,12 @@ env:
   REGISTRY_ORG: quay.io/rhadp
 
 jobs:
-  build-containers:
+  build-builder-container:
     strategy:
       matrix:
         include:
           - runs-on: ubuntu-latest
-            name: codespaces
+            name: builder
 
     runs-on: ${{ matrix.runs-on }}
     
