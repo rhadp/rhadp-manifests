@@ -1,7 +1,6 @@
 FROM registry.access.redhat.com/ubi9/s2i-core:9.6
 
-RUN yum -y module enable nodejs:$NODEJS_VER && \
-  INSTALL_PKGS="autoconf \
+RUN INSTALL_PKGS="autoconf \
   automake \
   bzip2 \
   gcc-c++ \
@@ -23,7 +22,6 @@ RUN yum -y module enable nodejs:$NODEJS_VER && \
   openssl-devel \
   patch \
   procps-ng \
-  npm \
   redhat-rpm-config \
   unzip \
   wget \
@@ -32,7 +30,6 @@ RUN yum -y module enable nodejs:$NODEJS_VER && \
   zlib-devel" && \
   yum install -y --setopt=tsflags=nodocs $INSTALL_PKGS && \
   rpm -V $INSTALL_PKGS && \
-  node -v | grep -qe "^v$NODEJS_VER\." && echo "Found VERSION $NODEJS_VER" && \
   yum -y clean all --enablerepo='*'
 
 # install EPEL
