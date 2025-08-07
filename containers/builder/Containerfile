@@ -1,11 +1,8 @@
-FROM quay.io/centos/centos:stream9
+FROM registry.access.redhat.com/ubi9/s2i-core:9.6
 
 RUN dnf update -y && dnf clean all
 
-RUN dnf install -y epel-release && dnf clean all
-
-RUN dnf groupinstall -y "Development Tools" && \
-    dnf install -y \
+RUN dnf install -y \
     cmake make gcc gcc-c++ git clang-tools-extra \
     python3.12 python3-pip \
     && dnf clean all \

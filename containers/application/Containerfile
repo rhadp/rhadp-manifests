@@ -1,6 +1,0 @@
-#FROM registry.access.redhat.com/ubi9/ubi:9.6
-FROM quay.io/centos/centos:stream9
-
-RUN dnf install -y epel-release && \
-    dnf install -y cmake make g++ && \
-    dnf clean all
