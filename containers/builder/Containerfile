@@ -1,6 +1,39 @@
 FROM registry.access.redhat.com/ubi9/s2i-core:9.6
 
-RUN dnf update -y && dnf clean all
+RUN yum -y module enable nodejs:$NODEJS_VER && \
+  INSTALL_PKGS="autoconf \
+  automake \
+  bzip2 \
+  gcc-c++ \
+  gd-devel \
+  gdb \
+  cmake \
+  gcc \
+  gcc-c++ \
+  clang-tools-extra \
+  python3.12 \
+  python3-pip \
+  git \
+  libcurl-devel \
+  libpq-devel \
+  libxml2-devel \
+  libxslt-devel \
+  lsof \
+  make \
+  openssl-devel \
+  patch \
+  procps-ng \
+  npm \
+  redhat-rpm-config \
+  unzip \
+  wget \
+  which \
+  zip \
+  zlib-devel" && \
+  yum install -y --setopt=tsflags=nodocs $INSTALL_PKGS && \
+  rpm -V $INSTALL_PKGS && \
+  node -v | grep -qe "^v$NODEJS_VER\." && echo "Found VERSION $NODEJS_VER" && \
+  yum -y clean all --enablerepo='*'
 
 # install EPEL
 ARG EPEL_VERSION=9-10.el9
@@ -8,14 +41,6 @@ RUN ARCH=$(uname -m) && \
     curl -O http://dl.fedoraproject.org/pub/epel/9/Everything/${ARCH}/Packages/e/epel-release-${EPEL_VERSION}.noarch.rpm && \
     rpm -Uvh epel-release-${EPEL_VERSION}.noarch.rpm && \
     rm -f epel-release-*.rpm
-
-# add basic build tools
-RUN dnf install -y \
-    cmake make gcc gcc-c++ git clang-tools-extra \
-    python3.12 python3-pip \
-    zip unzip tar git && \
-    dnf clean all && \
-    rm -rf /var/cache/dnf
 
 # add vcpkg
 RUN cd /opt/app-root && \
