@@ -6,19 +6,12 @@ FROM quay.io/devfile/base-developer-image:ubi9-latest
 
 ARG TARGETARCH
 
-LABEL maintainer="Red Hat Automotive Development Platform team"
-LABEL com.redhat.component="rhadp-devfile-universal-container"
-LABEL name="rhadp/universal-developer-image"
-LABEL version="ubi9"
+LABEL name="rhadp/builder"
 
-#label for EULA
-LABEL com.redhat.license_terms="https://www.redhat.com/en/about/red-hat-end-user-license-agreements#UBI"
-
-#labels for container catalog
+# labels for container catalog
 LABEL summary="RHADP devfile universal developer image"
 LABEL description="Automotive developer image with automotive developers tools."
-LABEL io.k8s.display-name="rhadp-devfile-universal"
-LABEL io.openshift.expose-services=""
+LABEL io.k8s.display-name="rhadp/builder"
 
 USER 0
 
@@ -28,16 +21,18 @@ RUN touch ${PROFILE_EXT} && chown 10001 ${PROFILE_EXT}
 
 USER 10001
 
-# We install everything to /home/tooling/ as /home/user/ may get overriden, see github.com/eclipse/che/issues/22412
+# install everything to /home/tooling/ as /home/user/ may get overriden, see github.com/eclipse/che/issues/22412
 ENV HOME=/home/tooling
 
 # NodeJS
 RUN mkdir -p /home/tooling/.nvm/
-ENV NVM_DIR="/home/tooling/.nvm"
-ENV NODEJS_20_VERSION=20.18.1
-ENV NODEJS_18_VERSION=18.20.5
-ENV NVM_VERSION=0.40.3
-ENV NODEJS_DEFAULT_VERSION=${NODEJS_18_VERSION}
+
+ENV NVM_DIR="/home/tooling/.nvm" \
+    NODEJS_20_VERSION=20.18.1 \
+    NODEJS_18_VERSION=18.20.5 \
+    NVM_VERSION=0.40.3 \
+    NODEJS_DEFAULT_VERSION=${NODEJS_20_VERSION}
+
 RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v${NVM_VERSION}/install.sh | PROFILE=/dev/null bash
 RUN echo 'export NVM_DIR="$HOME/.nvm"' >> ${PROFILE_EXT} \
     && echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' >> ${PROFILE_EXT}
@@ -56,27 +51,26 @@ ENV KUBECONFIG=/home/user/.kube/config
 
 USER 0
 
-# Misc required packages and stuff
+# misc required packages and stuff
 RUN dnf install --setopt=tsflags=nodocs -y libXext libXrender libXtst libXi \
     gd-devel autoconf bzip2 git libcurl-devel libpq-devel libxml2-devel libxslt-devel lsof \
     openssl-devel patch redhat-rpm-config unzip wget which zip zlib-devel
 
-# C/CPP and stuff
+# c/c++ and stuff
 RUN dnf install --setopt=tsflags=nodocs -y llvm-toolset gcc gcc-c++ clang clang-libs clang-tools-extra \
     gdb cmake automake autoconf make
 
-# Go 1.22+    - installed to /usr/bin/go
-# gopls 0.16.2+ - installed to /home/tooling/go/bin/gopls and /home/tooling/go/pkg/mod/
+# go - installed to /usr/bin/go
+# gopls - installed to /home/tooling/go/bin/gopls and /home/tooling/go/pkg/mod/
 RUN dnf install --setopt=tsflags=nodocs -y go-toolset && \
     GO111MODULE=on go install -v golang.org/x/tools/gopls@v0.16.2 && \
     chgrp -R 0 /home/tooling && chmod -R g=u /home/tooling
-ENV GOBIN="/home/tooling/go/bin/"
-ENV PATH="$GOBIN:$PATH"
+ENV GOBIN="/home/tooling/go/bin/" \
+    PATH="$GOBIN:$PATH"
 
-# Python -> upgraded to 3.12
-RUN dnf install --setopt=tsflags=nodocs -y python3.12 python3.12-devel python3.12-setuptools python3.12-pip nss_wrapper
-
-RUN cd /usr/bin \
+# Python
+RUN dnf install --setopt=tsflags=nodocs -y python3.12 python3.12-devel python3.12-setuptools python3.12-pip nss_wrapper \
+    && cd /usr/bin \
     && if [ ! -L python ]; then ln -s python3.12 python; fi \
     && if [ ! -L pydoc ]; then ln -s pydoc3.12 pydoc; fi \
     && if [ ! -L python-config ]; then ln -s python3.12-config python-config; fi \
@@ -94,7 +88,7 @@ RUN curl --proto '=https' --tlsv1.2 -sSfo rustup https://sh.rustup.rs && \
     rustup -y --no-modify-path --profile minimal -c rust-src -c rust-analysis -c rls && \
     chgrp -R 0 /home/tooling && chmod -R g=u /home/tooling
 
-# Config directories
+# config directories
 RUN mkdir -p /home/tooling/.config/pip && \
     mkdir -p /home/tooling/.cargo && \
     mkdir -p /home/tooling/certs && \
@@ -102,7 +96,6 @@ RUN mkdir -p /home/tooling/.config/pip && \
     mkdir -p /home/tooling/.nuget && \
     chgrp -R 0 /home/tooling && chmod -R g=u /home/tooling
 
-# Cloud
 
 # oc client
 ENV OC_VERSION=4.19
@@ -113,18 +106,18 @@ RUN if [ "$TARGETARCH" = "arm64" ]; then \
     fi | tar -C /usr/local/bin -xz --no-same-owner && \
     chmod +x /usr/local/bin/oc
 
-# OS Pipelines CLI (tkn)
+# pipelines cli (tkn)
 ENV TKN_VERSION=1.19.0
 RUN curl -L https://mirror.openshift.com/pub/openshift-v4/clients/pipelines/${TKN_VERSION}/tkn-linux-${TARGETARCH}.tar.gz | tar -C /usr/local/bin -xz --no-same-owner \
     && chmod +x /usr/local/bin/tkn /usr/local/bin/opc /usr/local/bin/tkn-pac
  
 RUN echo 'alias docker=podman' >> ${PROFILE_EXT}
 
-# Configure container engine
+# configure container engine
 COPY --chown=0:0 containers.conf /etc/containers/containers.conf
 
-ENV K8S_VERSION=1.32
 ## kubectl
+ENV K8S_VERSION=1.32
 RUN <<EOF
 set -euf -o pipefail
 
@@ -272,7 +265,7 @@ cd -
 rm -rf "${TEMP_DIR}"
 EOF
 
-# Bash completions
+# bash completions
 RUN dnf -y install bash-completion \
     && dnf clean all \
     && rm -rf /var/cache/yum
@@ -284,12 +277,14 @@ kubectl completion bash > /usr/share/bash-completion/completions/kubectl
 cat ${NVM_DIR}/bash_completion > /usr/share/bash-completion/completions/nvm
 EOF
 
-
-# Create symbolic links from /home/tooling/ -> /home/user/
+# create symbolic links from /home/tooling/ -> /home/user/
 RUN stow . -t /home/user/ -d /home/tooling/ --no-folding
 
-# Set permissions on /etc/passwd, /etc/group, /etc/pki and /home to allow arbitrary users to write
+# set permissions on /etc/passwd, /etc/group, /etc/pki and /home to allow arbitrary users to write
 RUN chgrp -R 0 /home && chmod -R g=u /etc/passwd /etc/group /home /etc/pki
+
+# set permissions on the user's home directory
+RUN chgrp -R 0 /home/user && chmod -R g=u /home/user
 
 # cleanup dnf cache
 RUN dnf -y clean all --enablerepo='*'
