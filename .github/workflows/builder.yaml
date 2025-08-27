@@ -1,4 +1,4 @@
-name: build base container image
+name: build the builder container image
 on:
   workflow_dispatch:
   
@@ -8,6 +8,7 @@ on:
   push:
     branches:
       - 'main'
+      - 'develop'
 
 env:
   REGISTRY: quay.io
