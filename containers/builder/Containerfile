@@ -1,9 +1,12 @@
 # this is a modified version of https://github.com/devfile/developer-images/universal/ubi9/Dockerfile
+# REMOVED Java, Lombok, Scala, PHP, .NET, camel-k, knative-cli, skaffold, 2fsprogs setup, camel-k
+# REMOVED knative-cli, skaffold, 2fsprogs setup
+
 FROM quay.io/devfile/base-developer-image:ubi9-latest
 
 ARG TARGETARCH
-LABEL maintainer="Red Hat, Inc."
 
+LABEL maintainer="Red Hat Automotive Development Platform team"
 LABEL com.redhat.component="rhadp-devfile-universal-container"
 LABEL name="rhadp/universal-developer-image"
 LABEL version="ubi9"
@@ -27,8 +30,6 @@ USER 10001
 
 # We install everything to /home/tooling/ as /home/user/ may get overriden, see github.com/eclipse/che/issues/22412
 ENV HOME=/home/tooling
-
-# REMOVED Java
 
 # NodeJS
 RUN mkdir -p /home/tooling/.nvm/
@@ -55,26 +56,25 @@ ENV KUBECONFIG=/home/user/.kube/config
 
 USER 0
 
-# Required packages for AWT
-RUN dnf install -y libXext libXrender libXtst libXi
+# Misc required packages and stuff
+RUN dnf install --setopt=tsflags=nodocs -y libXext libXrender libXtst libXi \
+    gd-devel autoconf bzip2 git libcurl-devel libpq-devel libxml2-devel libxslt-devel lsof \
+    openssl-devel patch redhat-rpm-config unzip wget which zip zlib-devel
 
-# Removed Lombok
-
-# Removed Scala
-
-# C/CPP
-RUN dnf -y install llvm-toolset gcc gcc-c++ clang clang-libs clang-tools-extra gdb
+# C/CPP and stuff
+RUN dnf install --setopt=tsflags=nodocs -y llvm-toolset gcc gcc-c++ clang clang-libs clang-tools-extra \
+    gdb cmake automake autoconf make
 
 # Go 1.22+    - installed to /usr/bin/go
 # gopls 0.16.2+ - installed to /home/tooling/go/bin/gopls and /home/tooling/go/pkg/mod/
-RUN dnf install -y go-toolset && \
+RUN dnf install --setopt=tsflags=nodocs -y go-toolset && \
     GO111MODULE=on go install -v golang.org/x/tools/gopls@v0.16.2 && \
     chgrp -R 0 /home/tooling && chmod -R g=u /home/tooling
 ENV GOBIN="/home/tooling/go/bin/"
 ENV PATH="$GOBIN:$PATH"
 
 # Python -> upgraded to 3.12
-RUN dnf -y install python3.12 python3.12-devel python3.12-setuptools python3.12-pip nss_wrapper
+RUN dnf install --setopt=tsflags=nodocs -y python3.12 python3.12-devel python3.12-setuptools python3.12-pip nss_wrapper
 
 RUN cd /usr/bin \
     && if [ ! -L python ]; then ln -s python3.12 python; fi \
@@ -83,10 +83,6 @@ RUN cd /usr/bin \
     && if [ ! -L pip ]; then ln -s pip-3.12 pip; fi
 
 RUN pip install pylint yq
-
-# Removed PHP
-
-# Removed .NET
 
 # rust
 ENV CARGO_HOME=/home/tooling/.cargo \
@@ -97,8 +93,6 @@ RUN curl --proto '=https' --tlsv1.2 -sSfo rustup https://sh.rustup.rs && \
     mv rustup /usr/bin/ && \
     rustup -y --no-modify-path --profile minimal -c rust-src -c rust-analysis -c rls && \
     chgrp -R 0 /home/tooling && chmod -R g=u /home/tooling
-
-# Removed camel-k
 
 # Config directories
 RUN mkdir -p /home/tooling/.config/pip && \
@@ -143,14 +137,14 @@ gpgcheck=1
 gpgkey=https://pkgs.k8s.io/core:/stable:/v${K8S_VERSION}/rpm/repodata/repomd.xml.key
 EOF2
 
-dnf install -y kubectl
+dnf install --setopt=tsflags=nodocs -y kubectl
 curl -sSL -o ~/.kubectl_aliases https://raw.githubusercontent.com/ahmetb/kubectl-alias/master/.kubectl_aliases
 echo '[ -f ~/.kubectl_aliases ] && source ~/.kubectl_aliases' >> ${PROFILE_EXT}
 EOF
 
 ## shellcheck
 RUN <<EOF
-dnf install -y xz
+dnf install --setopt=tsflags=nodocs -y xz
 set -euf -o pipefail
 TEMP_DIR="$(mktemp -d)"
 cd "${TEMP_DIR}"
@@ -258,8 +252,6 @@ EOF
 #rm -rf "${TEMP_DIR}"
 #EOF
 
-## Removed knative-cli
-
 ## terraform-cli
 RUN <<EOF
 set -euf -o pipefail
@@ -279,10 +271,6 @@ mv terraform /usr/local/bin
 cd -
 rm -rf "${TEMP_DIR}"
 EOF
-
-## Removed skaffold
-
-# removed 2fsprogs setup
 
 # Bash completions
 RUN dnf -y install bash-completion \
