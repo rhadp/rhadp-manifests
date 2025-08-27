@@ -18,8 +18,8 @@ jobs:
     strategy:
       matrix:
         include:
-          - runs-on: ubuntu-latest
-            name: builder
+          #- runs-on: ubuntu-latest
+          #  name: builder
           - runs-on: ubuntu-latest
             name: codespaces
 
