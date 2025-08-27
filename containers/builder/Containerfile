@@ -28,62 +28,16 @@ USER 10001
 # We install everything to /home/tooling/ as /home/user/ may get overriden, see github.com/eclipse/che/issues/22412
 ENV HOME=/home/tooling
 
-# Java
-#RUN curl -fsSL "https://get.sdkman.io/?rcupdate=false" | bash \
-#    && bash -c ". /home/tooling/.sdkman/bin/sdkman-init.sh \
-#             && sed -i "s/sdkman_auto_answer=false/sdkman_auto_answer=true/g" /home/tooling/.sdkman/etc/config \
-#	     && sed -i "s/sdkman_auto_env=false/sdkman_auto_env=true/g" /home/tooling/.sdkman/etc/config \
-#             && sdk install java 8.0.432-tem \
-#             && sdk install java 11.0.25-tem \
-#             && sdk install java 17.0.13-tem \
-#             && sdk install java 21.0.5-tem \
-#             && sdk install java 23.1.5.r21-mandrel \
-#             && sdk default java 17.0.13-tem \
-#             && sdk install gradle \
-#             && sdk install maven \
-#             && sdk install jbang \
-#             && sdk flush archives \
-#             && sdk flush temp" \
-#         && chgrp -R 0 /home/tooling && chmod -R g=u /home/tooling
-
-# sdk home java <version>
-#ENV JAVA_HOME_8=/home/tooling/.sdkman/candidates/java/8.0.432-tem
-#ENV JAVA_HOME_11=/home/tooling/.sdkman/candidates/java/11.0.25-tem
-#ENV JAVA_HOME_17=/home/tooling/.sdkman/candidates/java/17.0.13-tem
-#ENV JAVA_HOME_21=/home/tooling/.sdkman/candidates/java/21.0.5-tem
-
-# Java-related environment variables are described and set by ${PROFILE_EXT}, which will be loaded by ~/.bashrc
-# To make Java working for dash and other shells, it needs to initialize them in the Dockerfile.
-#ENV SDKMAN_CANDIDATES_API="https://api.sdkman.io/2"
-#ENV SDKMAN_CANDIDATES_DIR="/home/tooling/.sdkman/candidates"
-#ENV SDKMAN_DIR="/home/tooling/.sdkman"
-#RUN if [ "$TARGETARCH" = "arm64" ]; then \
-#        export SDKMAN_PLATFORM="linuxarm64"; \
-#    else \
-#        export SDKMAN_PLATFORM="linuxx64"; \
-#    fi
-#ENV SDKMAN_PLATFORM=${SDKMAN_PLATFORM}
-#ENV SDKMAN_VERSION="5.18.2"
-
-#ENV GRADLE_HOME="/home/tooling/.sdkman/candidates/gradle/current"
-#ENV JAVA_HOME="/home/tooling/.sdkman/candidates/java/current"
-#ENV MAVEN_HOME="/home/tooling/.sdkman/candidates/maven/current"
-
-#ENV GRAALVM_HOME=/home/tooling/.sdkman/candidates/java/23.1.5.r21-mandrel
-
-#ENV PATH="/home/tooling/.krew/bin:$PATH"
-#ENV PATH="/home/tooling/.sdkman/candidates/maven/current/bin:$PATH"
-#ENV PATH="/home/tooling/.sdkman/candidates/java/current/bin:$PATH"
-#ENV PATH="/home/tooling/.sdkman/candidates/gradle/current/bin:$PATH"
-#ENV PATH="/home/tooling/.local/share/coursier/bin:$PATH"
+# REMOVED Java
 
 # NodeJS
 RUN mkdir -p /home/tooling/.nvm/
 ENV NVM_DIR="/home/tooling/.nvm"
 ENV NODEJS_20_VERSION=20.18.1
 ENV NODEJS_18_VERSION=18.20.5
+ENV NVM_VERSION=0.40.3
 ENV NODEJS_DEFAULT_VERSION=${NODEJS_18_VERSION}
-RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | PROFILE=/dev/null bash
+RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v${NVM_VERSION}/install.sh | PROFILE=/dev/null bash
 RUN echo 'export NVM_DIR="$HOME/.nvm"' >> ${PROFILE_EXT} \
     && echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' >> ${PROFILE_EXT}
 RUN source /home/user/.bashrc && \
@@ -104,20 +58,9 @@ USER 0
 # Required packages for AWT
 RUN dnf install -y libXext libXrender libXtst libXi
 
-# Lombok
-#ENV LOMBOK_VERSION=1.18.18
-#RUN wget -O /usr/local/lib/lombok.jar https://projectlombok.org/downloads/lombok-${LOMBOK_VERSION}.jar
+# Removed Lombok
 
-# Scala
-#RUN curl -fLo cs https://git.io/coursier-cli && \
-#    chmod +x cs && \
-#    mv cs /usr/local/bin/
-#RUN curl -fLo sbt https://raw.githubusercontent.com/dwijnand/sbt-extras/master/sbt && \
-#    chmod +x sbt && \
-#    mv sbt /usr/local/bin/
-#RUN curl -fLo mill https://raw.githubusercontent.com/lefou/millw/main/millw && \
-#    chmod +x mill && \
-#    mv mill /usr/local/bin/
+# Removed Scala
 
 # C/CPP
 RUN dnf -y install llvm-toolset gcc gcc-c++ clang clang-libs clang-tools-extra gdb
@@ -130,7 +73,7 @@ RUN dnf install -y go-toolset && \
 ENV GOBIN="/home/tooling/go/bin/"
 ENV PATH="$GOBIN:$PATH"
 
-# Python
+# Python -> upgraded to 3.12
 RUN dnf -y install python3.12 python3.12-devel python3.12-setuptools python3.12-pip nss_wrapper
 
 RUN cd /usr/bin \
@@ -141,31 +84,9 @@ RUN cd /usr/bin \
 
 RUN pip install pylint yq
 
-# PHP
-#ENV PHP_VERSION=8.2
-#RUN dnf -y module enable php:$PHP_VERSION && \
-#    dnf install -y --setopt=tsflags=nodocs php php-mysqlnd php-pgsql php-bcmath \
-#                php-gd php-intl php-json php-ldap php-mbstring php-pdo \
-#                php-pear php-zlib php-mysqli php-curl php-xml php-devel\
-#                php-process php-soap php-opcache php-fpm ca-certificates \
-#                php-gmp php-pecl-xdebug php-pecl-zip mod_ssl hostname && \
-#    wget https://getcomposer.org/installer -O /tmp/composer-installer.php && \
-#    php /tmp/composer-installer.php --filename=composer --install-dir=/usr/local/bin
+# Removed PHP
 
-#ENV PHP_DEFAULT_INCLUDE_PATH=/usr/share/pear \
-#    PHP_SYSCONF_PATH=/etc \
-#    PHP_HTTPD_CONF_FILE=php.conf \
-#    HTTPD_MAIN_CONF_PATH=/etc/httpd/conf \
-#    HTTPD_MAIN_CONF_D_PATH=/etc/httpd/conf.d \
-#    HTTPD_MODULES_CONF_D_PATH=/etc/httpd/conf.modules.d \
-#    HTTPD_VAR_RUN=/var/run/httpd \
-#    HTTPD_DATA_PATH=/var/www \
-#    HTTPD_DATA_ORIG_PATH=/var/www \
-#    HTTPD_VAR_PATH=/var
-
-# .NET
-#ENV DOTNET_RPM_VERSION=8.0
-#RUN dnf install -y dotnet-hostfxr-${DOTNET_RPM_VERSION} dotnet-runtime-${DOTNET_RPM_VERSION} dotnet-sdk-${DOTNET_RPM_VERSION}
+# Removed .NET
 
 # rust
 ENV CARGO_HOME=/home/tooling/.cargo \
@@ -177,16 +98,10 @@ RUN curl --proto '=https' --tlsv1.2 -sSfo rustup https://sh.rustup.rs && \
     rustup -y --no-modify-path --profile minimal -c rust-src -c rust-analysis -c rls && \
     chgrp -R 0 /home/tooling && chmod -R g=u /home/tooling
 
-# camel-k
-#ENV KAMEL_VERSION 2.2.0
-#RUN curl -L https://github.com/apache/camel-k/releases/download/v${KAMEL_VERSION}/camel-k-client-${KAMEL_VERSION}-linux-${TARGETARCH}.tar.gz | tar -C /usr/local/bin -xz --no-same-owner \
-#    && chmod +x /usr/local/bin/kamel
+# Removed camel-k
 
 # Config directories
-#RUN mkdir -p /home/tooling/.m2 && \
-#    mkdir -p /home/tooling/.gradle && \
 RUN mkdir -p /home/tooling/.config/pip && \
-    mkdir -p /home/tooling/.sbt/1.0 && \
     mkdir -p /home/tooling/.cargo && \
     mkdir -p /home/tooling/certs && \
     mkdir -p /home/tooling/.composer && \
@@ -343,25 +258,7 @@ EOF
 #rm -rf "${TEMP_DIR}"
 #EOF
 
-## knative-cli
-#RUN <<EOF
-#set -euf -o pipefail
-#TEMP_DIR="$(mktemp -d)"
-#cd "${TEMP_DIR}"
-#KN_VERSION="1.13.0"
-#KN_ARCH="linux-${TARGETARCH}"
-#KN_BIN="kn-${KN_ARCH}"
-#KN_BIN_URL="https://github.com/knative/client/releases/download/knative-v${KN_VERSION}/${KN_BIN}"
-#KN_CHEKSUMS_URL="https://github.com/knative/client/releases/download/knative-v${KN_VERSION}/checksums.txt"
-#curl -sSLO "${KN_BIN_URL}"
-#curl -sSLO "${KN_CHEKSUMS_URL}"
-#sha256sum --ignore-missing -c "checksums.txt" 2>&1 | grep OK
-#mv "${KN_BIN}" kn
-#chmod +x kn
-#mv kn /usr/local/bin
-#cd -
-#rm -rf "${TEMP_DIR}"
-#EOF
+## Removed knative-cli
 
 ## terraform-cli
 RUN <<EOF
@@ -383,35 +280,9 @@ cd -
 rm -rf "${TEMP_DIR}"
 EOF
 
-## skaffold
-#RUN curl -Lo skaffold https://storage.googleapis.com/skaffold/releases/latest/skaffold-linux-${TARGETARCH} && \
-#    install skaffold /usr/local/bin/
+## Removed skaffold
 
-# e2fsprogs setup
-# Since e2fsprogs-static package has removed RHEL 8 distribution, it is not possible to install from the repository
-# https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html-single/considerations_in_adopting_rhel_8/index#removed-packages_changes-to-packages
-RUN <<EOF
-set -euf -o pipefail
-TEMP_DIR="$(mktemp -d)"
-cd "${TEMP_DIR}"
-E2FSPROGS_VERSION="1.47.3"
-E2FSPROGS_TGZ="e2fsprogs-${E2FSPROGS_VERSION}.tar.gz"
-E2FSPROGS_TGZ_URL="https://mirrors.edge.kernel.org/pub/linux/kernel/people/tytso/e2fsprogs/v${E2FSPROGS_VERSION}/${E2FSPROGS_TGZ}"
-E2FSPROGS_CHEKSUMS_URL="https://mirrors.edge.kernel.org/pub/linux/kernel/people/tytso/e2fsprogs/v${E2FSPROGS_VERSION}/sha256sums.asc"
-curl -sSLO "${E2FSPROGS_TGZ_URL}"
-curl -sSLO "${E2FSPROGS_CHEKSUMS_URL}"
-sha256sum --ignore-missing -c "sha256sums.asc" 2>&1 | grep OK
-tar -zxv --no-same-owner -f "${E2FSPROGS_TGZ}"
-cd "e2fsprogs-${E2FSPROGS_VERSION}"
-mkdir build
-cd build
-../configure --prefix=/usr --with-root-prefix="" --enable-elf-shlibs --disable-evms
-make
-make install
-make install-libs
-cd -
-rm -rf "${TEMP_DIR}"
-EOF
+# removed 2fsprogs setup
 
 # Bash completions
 RUN dnf -y install bash-completion \
@@ -424,11 +295,6 @@ tkn completion bash > /usr/share/bash-completion/completions/tkn
 kubectl completion bash > /usr/share/bash-completion/completions/kubectl
 cat ${NVM_DIR}/bash_completion > /usr/share/bash-completion/completions/nvm
 EOF
-
-## Add sdkman's init script launcher to the end of ${PROFILE_EXT} since we are not adding it on sdkman install
-## NOTE: all modifications to ${PROFILE_EXT} must happen BEFORE this step in order for sdkman to function correctly
-#RUN echo 'export SDKMAN_DIR="/home/tooling/.sdkman"' >> ${PROFILE_EXT}
-#RUN echo '[[ -s "$SDKMAN_DIR/bin/sdkman-init.sh" ]] && source "$SDKMAN_DIR/bin/sdkman-init.sh"' >> ${PROFILE_EXT}
 
 
 # Create symbolic links from /home/tooling/ -> /home/user/
