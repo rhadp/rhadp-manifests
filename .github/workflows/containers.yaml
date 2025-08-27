@@ -1,4 +1,4 @@
-name: build other container images
+name: build all other container images
 on:
   workflow_dispatch:
   

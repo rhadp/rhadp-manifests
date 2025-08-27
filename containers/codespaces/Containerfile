@@ -1,8 +1,9 @@
-FROM ghcr.io/astral-sh/uv:latest AS uv
-
 FROM quay.io/rhadp/builder:latest
 
-COPY --from=uv /uv /uvx /bin/
+USER root
+
+COPY --from=ghcr.io/astral-sh/uv:latest /uv  /bin/uv
+COPY --from=ghcr.io/astral-sh/uv:latest /uvx /bin/uvx
 
 # set the virtual environment for jumpstarter etc
 ENV UV_PYTHON=python3.12 VIRTUAL_ENV=/venv
@@ -15,3 +16,8 @@ RUN uv venv /venv && \
     rm -rf /tmp/requirements.txt
 
 ENV PATH="/venv/bin:$PATH"
+
+USER 10001
+
+# This will make sure that we always run python from our venv instead
+RUN echo "alias python='uv run python'" >> /home/user/.bashrc
