@@ -91,9 +91,9 @@ RUN curl --proto '=https' --tlsv1.2 -sSfo rustup https://sh.rustup.rs && \
 # config directories
 RUN mkdir -p /home/tooling/.config/pip && \
     mkdir -p /home/tooling/.cargo && \
-    mkdir -p /home/tooling/certs && \
     mkdir -p /home/tooling/.composer && \
-    mkdir -p /home/tooling/.nuget && \
+    mkdir -p /home/tooling/.cache && \
+    mkdir -p /home/tooling/.ssh && \
     chgrp -R 0 /home/tooling && chmod -R g=u /home/tooling
 
 
