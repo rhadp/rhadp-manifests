@@ -90,6 +90,7 @@ RUN curl --proto '=https' --tlsv1.2 -sSfo rustup https://sh.rustup.rs && \
 
 # config directories
 RUN mkdir -p /home/tooling/.config/pip && \
+    mkdir -p /home/tooling/.config/containers && \
     mkdir -p /home/tooling/.cargo && \
     mkdir -p /home/tooling/.composer && \
     mkdir -p /home/tooling/.cache && \
@@ -222,29 +223,6 @@ cd -
 rm -rf "${TEMP_DIR}"
 EOF
 
-## tektoncd-cli
-#RUN <<EOF
-#set -euf -o pipefail
-#TEMP_DIR="$(mktemp -d)"
-#cd "${TEMP_DIR}"
-#TKN_VERSION="0.20.0"
-#if [ "$TARGETARCH" = "arm64" ]; then
-#    TKN_ARCH="Linux_arm64"
-#else
-#    TKN_ARCH="Linux_x86_64"
-#fi
-#TKN_TGZ="tkn_${TKN_VERSION}_${TKN_ARCH}.tar.gz"
-#TKN_TGZ_URL="https://github.com/tektoncd/cli/releases/download/v${TKN_VERSION}/${TKN_TGZ}"
-#TKN_CHEKSUMS_URL="https://github.com/tektoncd/cli/releases/download/v${TKN_VERSION}/checksums.txt"
-#curl -sSLO "${TKN_TGZ_URL}"
-#curl -sSLO "${TKN_CHEKSUMS_URL}"
-#sha256sum --ignore-missing -c "checksums.txt" 2>&1 | grep OK
-#tar -zxv --no-same-owner -f "${TKN_TGZ}"
-#mv tkn /usr/local/bin/
-#cd -
-#rm -rf "${TEMP_DIR}"
-#EOF
-
 ## terraform-cli
 RUN <<EOF
 set -euf -o pipefail
@@ -284,7 +262,9 @@ RUN stow . -t /home/user/ -d /home/tooling/ --no-folding
 RUN chgrp -R 0 /home && chmod -R g=u /etc/passwd /etc/group /home /etc/pki
 
 # set permissions on the user's home directory
-RUN chgrp -R 0 /home/user && chmod -R g=u /home/user
+RUN chgrp -R 0 /home/user && \
+    chmod -R g=u /home/user && \
+    chown -R 10001 /home/user
 
 # cleanup dnf cache
 RUN dnf -y clean all --enablerepo='*'
