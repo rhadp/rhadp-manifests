@@ -17,6 +17,9 @@ RUN uv venv /venv && \
 
 ENV PATH="/venv/bin:$PATH"
 
+# set permissions on the user's home directory
+RUN chgrp -R 0 /home/user && chmod -R g=u /home/user
+
 USER 10001
 
 # This will make sure that we always run python from our venv instead
