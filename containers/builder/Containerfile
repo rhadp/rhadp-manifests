@@ -1,4 +1,5 @@
 # this is a modified version of https://github.com/devfile/developer-images/universal/ubi9/Dockerfile
+
 # REMOVED Java, Lombok, Scala, PHP, .NET, camel-k, knative-cli, skaffold, 2fsprogs setup, camel-k
 # REMOVED knative-cli, skaffold, 2fsprogs setup
 
@@ -94,6 +95,7 @@ RUN mkdir -p /home/tooling/.config/pip && \
     mkdir -p /home/tooling/.cargo && \
     mkdir -p /home/tooling/.composer && \
     mkdir -p /home/tooling/.cache && \
+    mkdir -p /home/tooling/.scripts && \
     mkdir -p /home/tooling/.ssh && \
     chgrp -R 0 /home/tooling && chmod -R g=u /home/tooling
 
@@ -263,7 +265,6 @@ RUN chgrp -R 0 /home && chmod -R g=u /etc/passwd /etc/group /home /etc/pki
 
 # set permissions on the user's home directory
 RUN chgrp -R 0 /home/user && chmod -R g=u /home/user
-    #chown -R 10001 /home/user
 
 # cleanup dnf cache
 RUN dnf -y clean all --enablerepo='*'
