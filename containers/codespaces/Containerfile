@@ -21,9 +21,8 @@ ENV PATH="/venv/bin:$PATH"
 RUN mkdir -p /home/user/.config/jumpstarter/clients
 
 # set permissions on the user's home directory
-RUN chgrp -R 0 /home/user && \
-    chmod -R g=u /home/user && \
-    chown -R 10001 /home/user
+RUN chgrp -R 0 /home/user && chmod -R g=u /home/user
+    #chown -R 10001 /home/user
 
 USER 10001
 

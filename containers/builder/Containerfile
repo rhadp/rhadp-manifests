@@ -262,9 +262,8 @@ RUN stow . -t /home/user/ -d /home/tooling/ --no-folding
 RUN chgrp -R 0 /home && chmod -R g=u /etc/passwd /etc/group /home /etc/pki
 
 # set permissions on the user's home directory
-RUN chgrp -R 0 /home/user && \
-    chmod -R g=u /home/user && \
-    chown -R 10001 /home/user
+RUN chgrp -R 0 /home/user && chmod -R g=u /home/user
+    #chown -R 10001 /home/user
 
 # cleanup dnf cache
 RUN dnf -y clean all --enablerepo='*'
