@@ -1,6 +1,3 @@
-# create jumpstarter client config directories
-mkdir -p /home/user/.config/jumpstarter/clients/
-
 # generate jumpstarter user config
 cat > /home/user/.config/jumpstarter/config.yaml <<EOF
 apiVersion: jumpstarter.dev/v1alpha1

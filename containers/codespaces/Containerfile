@@ -19,7 +19,8 @@ ENV PATH="/venv/bin:$PATH"
 
 # init jumpstarter client config
 COPY init-jumpstarter /home/tooling/.scripts/init-jumpstarter
-RUN chmod +x /home/tooling/.scripts/init-jumpstarter
+RUN mkdir -p /home/user/.config/jumpstarter/clients/ && \
+    chmod +x /home/tooling/.scripts/init-jumpstarter
 
 # set permissions on the user's home directory
 RUN chgrp -R 0 /home/user && chmod -R g=u /home/user
