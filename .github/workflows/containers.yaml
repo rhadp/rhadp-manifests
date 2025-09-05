@@ -15,7 +15,7 @@ env:
 
 jobs:
   build-containers:
-    name: "build container ${{ matrix.container }}"
+    name: "building '${{ matrix.container }}'"
     runs-on: ubuntu-latest
     strategy:
       max-parallel: 1
@@ -23,13 +23,6 @@ jobs:
         container:
           - builder
           - codespaces
-        #include:
-        #  - runs-on: ubuntu-latest
-        #    name: builder
-        #  - runs-on: ubuntu-latest
-        #    name: codespaces
-
-    #runs-on: ${{ matrix.runs-on }}
     
     permissions:
       packages: write
