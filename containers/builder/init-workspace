@@ -1,7 +1,7 @@
 # Execute all scripts in .scripts folder
 set -e
 
-SCRIPTS_DIR="${SCRIPTS_DIR:-/home/tooling/.scripts}"
+SCRIPTS_DIR="${SCRIPTS_DIR:-/home/tooling/.scripts/startup}"
 
 [ ! -d "$SCRIPTS_DIR" ] && { echo "error: $SCRIPTS_DIR not found"; exit 0; }
 

@@ -95,7 +95,7 @@ RUN mkdir -p /home/tooling/.config/pip && \
     mkdir -p /home/tooling/.cargo && \
     mkdir -p /home/tooling/.composer && \
     mkdir -p /home/tooling/.cache && \
-    mkdir -p /home/tooling/.scripts && \
+    mkdir -p /home/tooling/.scripts/startup && \
     mkdir -p /home/tooling/.ssh && \
     chgrp -R 0 /home/tooling && chmod -R g=u /home/tooling
 
@@ -256,6 +256,10 @@ tkn completion bash > /usr/share/bash-completion/completions/tkn
 kubectl completion bash > /usr/share/bash-completion/completions/kubectl
 cat ${NVM_DIR}/bash_completion > /usr/share/bash-completion/completions/nvm
 EOF
+
+# add init-workspace script
+COPY init-workspace /home/tooling/init-workspace
+RUN chmod +x /home/tooling/init-workspace
 
 # create symbolic links from /home/tooling/ -> /home/user/
 RUN stow . -t /home/user/ -d /home/tooling/ --no-folding
