@@ -1,0 +1,18 @@
+# Execute all scripts in .scripts folder
+set -e
+
+SCRIPTS_DIR="${SCRIPTS_DIR:-/home/tooling/.scripts}"
+
+[ ! -d "$SCRIPTS_DIR" ] && { echo "error: $SCRIPTS_DIR not found"; exit 0; }
+
+# Collect scripts from main SCRIPTS_DIR
+scripts=$(find "$SCRIPTS_DIR" -type f | sort)
+
+# Add scripts from local .scripts directory if it exists
+if [ -d ".scripts" ]; then
+    local_scripts=$(find ".scripts" -type f | sort)
+    scripts="$scripts $local_scripts"
+fi
+[ -z "$scripts" ] && { echo "no init scripts found"; exit 0; }
+
+echo "scripts: $scripts"
