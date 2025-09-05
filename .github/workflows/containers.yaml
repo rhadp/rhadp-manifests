@@ -15,15 +15,21 @@ env:
 
 jobs:
   build-containers:
+    name: "build container ${{ matrix.container }}"
+    runs-on: ubuntu-latest
     strategy:
+      max-parallel: 1
       matrix:
-        include:
-          #- runs-on: ubuntu-latest
-          #  name: builder
-          - runs-on: ubuntu-latest
-            name: codespaces
+        container:
+          - builder
+          - codespaces
+        #include:
+        #  - runs-on: ubuntu-latest
+        #    name: builder
+        #  - runs-on: ubuntu-latest
+        #    name: codespaces
 
-    runs-on: ${{ matrix.runs-on }}
+    #runs-on: ${{ matrix.runs-on }}
     
     permissions:
       packages: write
@@ -54,15 +60,15 @@ jobs:
       - name: set image tags
         id: set-tags
         run: |
-          TAGS="${{ env.REGISTRY_ORG }}/${{ matrix.name }}:${{ env.VERSION }}"
+          TAGS="${{ env.REGISTRY_ORG }}/${{ matrix.container }}:${{ env.VERSION }}"
 
           if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
-            TAGS="$TAGS,${{ env.REGISTRY_ORG }}/${{ matrix.name }}:latest"
+            TAGS="$TAGS,${{ env.REGISTRY_ORG }}/${{ matrix.container }}:latest"
           fi
 
           if [[ "${{ github.ref }}" == refs/heads/release-* ]]; then
             RELEASE_BRANCH_NAME=$(basename "${{ github.ref }}")
-            TAGS="$TAGS,${{ env.REGISTRY_ORG }}/${{ matrix.name }}:${RELEASE_BRANCH_NAME}"
+            TAGS="$TAGS,${{ env.REGISTRY_ORG }}/${{ matrix.container }}:${RELEASE_BRANCH_NAME}"
           fi
 
           echo "tags=$TAGS" >> $GITHUB_OUTPUT
@@ -94,14 +100,14 @@ jobs:
       - id: metadata
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY_ORG }}/${{ matrix.name }}
+          images: ${{ env.REGISTRY_ORG }}/${{ matrix.container }}
       
       - name: build and push
         id: push
         uses: docker/build-push-action@v6
         with:
-          context: "containers/${{ matrix.name }}"
-          file: "containers/${{ matrix.name }}/Containerfile"
+          context: "containers/${{ matrix.container }}"
+          file: "containers/${{ matrix.container }}/Containerfile"
           tags: ${{ steps.set-tags.outputs.tags }}
           labels: ${{ steps.metadata.outputs.labels }}
           platforms: linux/amd64,linux/arm64
@@ -112,6 +118,6 @@ jobs:
       - name: generate artifact attestation
         uses: actions/attest-build-provenance@v1
         with:
-          subject-name: ${{ env.REGISTRY_ORG }}/${{ matrix.name }}
+          subject-name: ${{ env.REGISTRY_ORG }}/${{ matrix.container }}
           subject-digest: ${{ steps.push.outputs.digest }}
           push-to-registry: true
