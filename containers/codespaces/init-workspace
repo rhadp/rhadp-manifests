@@ -15,4 +15,11 @@ if [ -d ".scripts" ]; then
 fi
 [ -z "$scripts" ] && { echo "no init scripts found"; exit 0; }
 
-echo "scripts: $scripts"
+for script in $scripts; do
+    if [ -x "$script" ]; then
+        echo "running: $script..."
+        . "$script" || { echo "error: $script failed with exit code $?"; exit 1; }
+    else
+        echo "skipping: $script"
+    fi
+done
