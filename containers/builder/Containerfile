@@ -258,8 +258,11 @@ cat ${NVM_DIR}/bash_completion > /usr/share/bash-completion/completions/nvm
 EOF
 
 # add init-workspace script
-COPY init-workspace /home/tooling/init-workspace
-RUN chmod +x /home/tooling/init-workspace
+ENV SCRIPTS_DIR=/home/tooling/.scripts
+ENV INIT_SCRIPTS_DIR=/home/tooling/.scripts/startup
+
+COPY init-workspace ${SCRIPTS_DIR}/init-workspace
+RUN chmod +x ${SCRIPTS_DIR}/init-workspace
 
 # create symbolic links from /home/tooling/ -> /home/user/
 RUN stow . -t /home/user/ -d /home/tooling/ --no-folding
