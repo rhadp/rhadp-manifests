@@ -97,6 +97,8 @@ RUN mkdir -p /home/tooling/.config/pip && \
     mkdir -p /home/tooling/.cache && \
     mkdir -p /home/tooling/.scripts/startup && \
     mkdir -p /home/tooling/.ssh && \
+    mkdir -p /home/tooling/.config/jumpstarter/clients && \
+    mkdir -p /etc/jumpstarter/exporters && \
     chgrp -R 0 /home/tooling && chmod -R g=u /home/tooling
 
 
