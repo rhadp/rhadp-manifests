@@ -4,7 +4,7 @@ inventory/**
 openshift-install
 env.sh
 
-hack/**
+tmp/**
 hack.*
 **hack**.yml
 cheatsheet.md
