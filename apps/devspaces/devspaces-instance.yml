@@ -79,9 +79,9 @@ spec:
         claimSize: 5Gi
       pvcStrategy: per-user
 
-  gitServices:
-    github:
-      - secretName: "github-oauth-config"
+  #gitServices:
+  #  github:
+  #    - secretName: "github-oauth-config"
 
   networking:
     auth:
