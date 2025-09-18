@@ -1,0 +1,43 @@
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: rhadp-devspaces
+  labels:
+    argocd.argoproj.io/managed-by: openshift-gitops
+    argocd.argoproj.io/project: rhadp-devspaces
+spec:
+  finalizers:
+    - kubernetes
+---
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: rhadp-devhub
+  labels:
+    argocd.argoproj.io/managed-by: openshift-gitops
+    argocd.argoproj.io/project: rhadp-devhub
+spec:
+  finalizers:
+    - kubernetes
+---
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: rhadp-jumpstarter
+  labels:
+    argocd.argoproj.io/managed-by: openshift-gitops
+    argocd.argoproj.io/project: rhadp-jumpstarter
+spec:
+  finalizers:
+    - kubernetes
+---
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: rhadp-exporter
+  labels:
+    argocd.argoproj.io/managed-by: openshift-gitops
+    argocd.argoproj.io/project: rhadp-exporter
+spec:
+  finalizers:
+    - kubernetes

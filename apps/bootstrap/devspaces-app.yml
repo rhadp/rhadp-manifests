@@ -1,24 +1,21 @@
-kind: Application
 apiVersion: argoproj.io/v1alpha1
+kind: Application
 metadata:
-  name: "rhadp-gitops"
+  name: "rhadp-devspaces"
   namespace: "openshift-gitops"
   finalizers:
     - resources-finalizer.argocd.argoproj.io
   annotations:
-    argocd.argoproj.io/sync-wave: "-1"
+    argocd.argoproj.io/sync-wave: "0"
 spec:
-  project: "rhadp-gitops"
-  namespace: "rhadp-gitops"
+  project: rhadp
   revisionHistoryLimit: 3
   source:
-    directory:
-      recurse: false
-    path: apps/gitops
+    path: apps/devspaces
     repoURL: "https://github.com/rhadp/rhadp-manifests"
-    targetRevision: "main"
+    targetRevision: "develop"
   destination:
-    namespace: "rhadp-gitops"
+    namespace: "rhadp-devspaces"
     server: https://kubernetes.default.svc
   syncPolicy:
     automated:
