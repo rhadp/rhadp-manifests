@@ -1,10 +1,11 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
+  name: openshift-gitops-argocd-appcontroller-crd
   annotations:
     argocds.argoproj.io/name: openshift-gitops
     argocds.argoproj.io/namespace: openshift-gitops
-  name: openshift-gitops-argocd-appcontroller-crd
+    argocd.argoproj.io/sync-wave: "-1"
 rules:
   - apiGroups:
       - "apiextensions.k8s.io"
