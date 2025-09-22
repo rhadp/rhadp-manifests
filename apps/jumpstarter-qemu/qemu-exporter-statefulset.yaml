@@ -77,7 +77,7 @@ spec:
                   ram: "1024"
                   type: virtual
               spec:
-                username: jmp-k8s:$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace)
+                username: kubernetes:$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace)
               EOF
 
               while [ -z "$ENDPOINT" ]
