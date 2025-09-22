@@ -1,0 +1,6 @@
+apiVersion: jumpstarter.dev/v1alpha1
+kind: Client
+metadata:
+  name: "user1"
+spec:
+  username: "kubernetes:user1"
