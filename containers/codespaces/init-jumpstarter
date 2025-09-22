@@ -14,6 +14,9 @@ metadata:
   namespace: jumpstarter-qemu-exporter
   name: $(sed "s|-devspaces||" /run/secrets/kubernetes.io/serviceaccount/namespace)
 endpoint: $JUMPSTARTER_GRPC_ENDPOINT
+tls:
+  ca: ''
+  insecure: true
 token: $(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
 drivers:
   allow: []
