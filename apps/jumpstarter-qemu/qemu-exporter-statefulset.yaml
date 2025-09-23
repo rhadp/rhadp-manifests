@@ -116,6 +116,9 @@ spec:
                 namespace: $(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace)
                 name: $(cat /etc/hostname)
               endpoint: $(cat /shared/endpoint)
+              tls:
+                ca: ''
+                insecure: true
               token: $(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
               export:
                 console:
