@@ -142,5 +142,6 @@ spec:
               EOF
 
               while true; do
-                jmp run --exporter-config qemu.yaml
+                sleep 10s
+                #jmp run --exporter-config qemu.yaml
               done
