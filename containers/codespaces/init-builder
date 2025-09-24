@@ -1,5 +1,2 @@
 # configure the builder access
-#base64 -d /home/tooling/.ssh/privateKey > /home/tooling/.config/builder-private-key
-
-#chmod 600 /home/tooling/.config/builder-private-key
-#cp /home/tooling/.config/builder-private-key /home/user/.ssh/builder-private-key
+cat /home/tooling/.ssh/privateKey | base64 -d > /home/user/.ssh/vm-pk && chmod 600 /home/user/.ssh/vm-pk

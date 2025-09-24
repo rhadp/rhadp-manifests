@@ -89,7 +89,7 @@ spec:
               echo "$ENDPOINT" > /shared/endpoint
       containers:
         - name: jumpstarter-exporter
-          image: quay.io/jumpstarter-dev/jumpstarter:latest # FIXME: pin image version
+          image: quay.io/jumpstarter-dev/jumpstarter-utils:latest # FIXME: pin image version
           imagePullPolicy: Always
           securityContext:
             privileged: true
