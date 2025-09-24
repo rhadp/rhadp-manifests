@@ -8,6 +8,8 @@ metadata:
     - cheGateway.clusterpermissions.finalizers.che.eclipse.org
     - oauthclients.finalizers.che.eclipse.org
     - dashboard.clusterpermissions.finalizers.che.eclipse.org
+    - container-build.finalizers.che.eclipse.org	
+    - consolelink.finalizers.che.eclipse.org
 spec:
   components:
     cheServer:
