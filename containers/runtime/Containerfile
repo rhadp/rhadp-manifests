@@ -115,8 +115,9 @@ RUN uv venv /venv && \
 
 ENV PATH="/venv/bin:$PATH"
 
+# add more directories ...
 RUN mkdir -p /home/user/.config/jumpstarter/clients/ && \
-    chmod +x ${INIT_SCRIPTS_DIR}/*
+    mkdir -p ${INIT_SCRIPTS_DIR}
 
 # set permissions on the user's home directory
 RUN chgrp -R 0 /home/user && chmod -R g=u /home/user
