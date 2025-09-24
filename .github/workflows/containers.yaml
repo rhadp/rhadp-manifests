@@ -21,7 +21,6 @@ jobs:
       max-parallel: 1
       matrix:
         container:
-          - runtime
           - builder
           - codespaces
     
