@@ -1,18 +1,14 @@
 # this is a modified version of https://github.com/devfile/developer-images/universal/ubi9/Dockerfile
-
-# REMOVED Java, Lombok, Scala, PHP, .NET, camel-k, knative-cli, skaffold, 2fsprogs setup, camel-k
-# REMOVED knative-cli, skaffold, 2fsprogs setup
-
 FROM quay.io/devfile/base-developer-image:ubi9-latest
 
 ARG TARGETARCH
 
-LABEL name="rhadp/builder"
+LABEL name="rhadp/runtime"
 
 # labels for container catalog
-LABEL summary="RHADP devfile universal developer image"
-LABEL description="Automotive developer image with automotive developers tools."
-LABEL io.k8s.display-name="rhadp/builder"
+LABEL summary="RHADP universal runtime image"
+LABEL description="Automotive developer runtime image with minimal tools."
+LABEL io.k8s.display-name="rhadp/runtime"
 
 USER 0
 
@@ -25,47 +21,13 @@ USER 10001
 # install everything to /home/tooling/ as /home/user/ may get overriden, see github.com/eclipse/che/issues/22412
 ENV HOME=/home/tooling
 
-# NodeJS
-RUN mkdir -p /home/tooling/.nvm/
-
-ENV NVM_DIR="/home/tooling/.nvm" \
-    NODEJS_20_VERSION=20.19.5 \
-    NVM_VERSION=0.40.3 \
-    YARN_VERSION=v1.22.22 \
-    NODEJS_DEFAULT_VERSION=${NODEJS_20_VERSION}
-
-RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v${NVM_VERSION}/install.sh | PROFILE=/dev/null bash
-RUN echo 'export NVM_DIR="$HOME/.nvm"' >> ${PROFILE_EXT} \
-    && echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' >> ${PROFILE_EXT}
-RUN source /home/user/.bashrc && \
-    nvm install v${NODEJS_20_VERSION} && \
-    nvm alias default v${NODEJS_DEFAULT_VERSION} && nvm use v${NODEJS_DEFAULT_VERSION} && \
-    npm install --global yarn@${YARN_VERSION} &&\
-    chgrp -R 0 /home/tooling && chmod -R g=u /home/tooling
-ENV PATH=$NVM_DIR/versions/node/v${NODEJS_DEFAULT_VERSION}/bin:$PATH \
-    NODEJS_HOME_20=$NVM_DIR/versions/node/v${NODEJS_20_VERSION}
-
 # kube
 ENV KUBECONFIG=/home/user/.kube/config
 
 USER 0
 
 # misc required packages and stuff
-RUN dnf install --setopt=tsflags=nodocs -y libXext libXrender libXtst libXi \
-    gd-devel autoconf bzip2 git libcurl-devel libpq-devel libxml2-devel libxslt-devel lsof \
-    openssl-devel patch redhat-rpm-config unzip wget which zip zlib-devel
-
-# c/c++ and stuff
-RUN dnf install --setopt=tsflags=nodocs -y llvm-toolset gcc gcc-c++ clang clang-libs clang-tools-extra \
-    gdb cmake automake autoconf make
-
-# go - installed to /usr/bin/go
-# gopls - installed to /home/tooling/go/bin/gopls and /home/tooling/go/pkg/mod/
-RUN dnf install --setopt=tsflags=nodocs -y go-toolset && \
-    GO111MODULE=on go install -v golang.org/x/tools/gopls@v0.16.2 && \
-    chgrp -R 0 /home/tooling && chmod -R g=u /home/tooling
-ENV GOBIN="/home/tooling/go/bin/" \
-    PATH="$GOBIN:$PATH"
+RUN dnf install --setopt=tsflags=nodocs -y bzip2 git lsof patch redhat-rpm-config unzip wget which zip zlib
 
 # Python
 RUN dnf install --setopt=tsflags=nodocs -y python3.12 python3.12-devel python3.12-setuptools python3.12-pip nss_wrapper \
@@ -76,16 +38,6 @@ RUN dnf install --setopt=tsflags=nodocs -y python3.12 python3.12-devel python3.1
     && if [ ! -L pip ]; then ln -s pip-3.12 pip; fi
 
 RUN pip install pylint yq
-
-# rust
-ENV CARGO_HOME=/home/tooling/.cargo \
-    RUSTUP_HOME=/home/tooling/.rustup \
-    PATH=/home/tooling/.cargo/bin:${PATH}
-RUN curl --proto '=https' --tlsv1.2 -sSfo rustup https://sh.rustup.rs && \
-    chmod +x rustup && \
-    mv rustup /usr/bin/ && \
-    rustup -y --no-modify-path --profile minimal -c rust-src -c rust-analysis -c rls && \
-    chgrp -R 0 /home/tooling && chmod -R g=u /home/tooling
 
 # config directories
 RUN mkdir -p /home/tooling/.config/pip && \
@@ -99,7 +51,6 @@ RUN mkdir -p /home/tooling/.config/pip && \
     mkdir -p /etc/jumpstarter/exporters && \
     chgrp -R 0 /home/tooling && chmod -R g=u /home/tooling
 
-
 # oc client
 ENV OC_VERSION=4.19
 RUN if [ "$TARGETARCH" = "arm64" ]; then \
@@ -109,13 +60,7 @@ RUN if [ "$TARGETARCH" = "arm64" ]; then \
     fi | tar -C /usr/local/bin -xz --no-same-owner && \
     chmod +x /usr/local/bin/oc
 
-# alias docker to podman
-RUN echo 'alias docker=podman' >> ${PROFILE_EXT}
-
-# configure container engine
-COPY --chown=0:0 containers.conf /etc/containers/containers.conf
-
-## kubectl
+# kubectl
 ENV K8S_VERSION=1.32
 RUN <<EOF
 set -euf -o pipefail
@@ -132,18 +77,6 @@ EOF2
 dnf install --setopt=tsflags=nodocs -y kubectl
 curl -sSL -o ~/.kubectl_aliases https://raw.githubusercontent.com/ahmetb/kubectl-alias/master/.kubectl_aliases
 echo '[ -f ~/.kubectl_aliases ] && source ~/.kubectl_aliases' >> ${PROFILE_EXT}
-EOF
-
-# bash completions
-RUN dnf -y install bash-completion \
-    && dnf clean all \
-    && rm -rf /var/cache/yum
-
-RUN <<EOF
-oc completion bash > /usr/share/bash-completion/completions/oc
-tkn completion bash > /usr/share/bash-completion/completions/tkn 
-kubectl completion bash > /usr/share/bash-completion/completions/kubectl
-cat ${NVM_DIR}/bash_completion > /usr/share/bash-completion/completions/nvm
 EOF
 
 # add init-workspace script
@@ -165,6 +98,35 @@ RUN chgrp -R 0 /home/user && chmod -R g=u /home/user
 # cleanup dnf cache
 RUN dnf -y clean all --enablerepo='*'
 
-USER 10001
+# install jumpstarter and other python dependencies
 
+COPY --from=ghcr.io/astral-sh/uv:latest /uv  /bin/uv
+COPY --from=ghcr.io/astral-sh/uv:latest /uvx /bin/uvx
+
+# set the virtual environment for jumpstarter etc
+ENV UV_PYTHON=python3.12 VIRTUAL_ENV=/venv
+
+# install jumpstarter and other python dependencies
+COPY requirements.txt /tmp/requirements.txt
+RUN uv venv /venv && \
+    uv pip install "git+https://github.com/jumpstarter-dev/jumpstarter#subdirectory=packages/jumpstarter-all" && \
+    uv pip install -r /tmp/requirements.txt && \
+    rm -rf /tmp/requirements.txt
+
+ENV PATH="/venv/bin:$PATH"
+
+# init builder and jumpstarter config
+COPY init-jumpstarter ${INIT_SCRIPTS_DIR}/init-jumpstarter
+COPY init-builder ${INIT_SCRIPTS_DIR}/init-builder
+
+RUN mkdir -p /home/user/.config/jumpstarter/clients/ && \
+    chmod +x ${INIT_SCRIPTS_DIR}/*
+
+# set permissions on the user's home directory
+RUN chgrp -R 0 /home/user && chmod -R g=u /home/user
+
+USER 10001
 ENV HOME=/home/user
+
+# This will make sure that we always run python from our venv instead
+RUN echo "alias python='uv run python'" >> /home/user/.bashrc
