@@ -80,8 +80,8 @@ echo '[ -f ~/.kubectl_aliases ] && source ~/.kubectl_aliases' >> ${PROFILE_EXT}
 EOF
 
 # add init-workspace script
-ENV SCRIPTS_DIR=/home/tooling/.scripts
-ENV INIT_SCRIPTS_DIR=/home/tooling/.scripts/startup
+ENV SCRIPTS_DIR=/home/tooling/.scripts \
+    INIT_SCRIPTS_DIR=/home/tooling/.scripts/startup
 
 COPY init-workspace ${SCRIPTS_DIR}/init-workspace
 RUN chmod +x ${SCRIPTS_DIR}/init-workspace
@@ -115,10 +115,6 @@ RUN uv venv /venv && \
 
 ENV PATH="/venv/bin:$PATH"
 
-# init builder and jumpstarter config
-COPY init-jumpstarter ${INIT_SCRIPTS_DIR}/init-jumpstarter
-COPY init-builder ${INIT_SCRIPTS_DIR}/init-builder
-
 RUN mkdir -p /home/user/.config/jumpstarter/clients/ && \
     chmod +x ${INIT_SCRIPTS_DIR}/*
 
@@ -126,7 +122,8 @@ RUN mkdir -p /home/user/.config/jumpstarter/clients/ && \
 RUN chgrp -R 0 /home/user && chmod -R g=u /home/user
 
 USER 10001
-ENV HOME=/home/user
 
 # This will make sure that we always run python from our venv instead
 RUN echo "alias python='uv run python'" >> /home/user/.bashrc
+
+ENV HOME=/home/user

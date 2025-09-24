@@ -147,8 +147,8 @@ cat ${NVM_DIR}/bash_completion > /usr/share/bash-completion/completions/nvm
 EOF
 
 # add init-workspace script
-ENV SCRIPTS_DIR=/home/tooling/.scripts
-ENV INIT_SCRIPTS_DIR=/home/tooling/.scripts/startup
+ENV SCRIPTS_DIR=/home/tooling/.scripts \
+    INIT_SCRIPTS_DIR=/home/tooling/.scripts/startup
 
 COPY init-workspace ${SCRIPTS_DIR}/init-workspace
 RUN chmod +x ${SCRIPTS_DIR}/init-workspace
