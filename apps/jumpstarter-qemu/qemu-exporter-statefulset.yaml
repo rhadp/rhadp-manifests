@@ -169,6 +169,5 @@ spec:
               sleep 60s
 
               while true; do
-                #sleep 30s
                 jmp run --exporter-config qemu.yaml
               done
