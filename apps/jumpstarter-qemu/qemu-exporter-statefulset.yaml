@@ -89,12 +89,6 @@ spec:
 
               oc config use-context qemu-ctx
 
-              # create a dummy exporter config, in order to create the exporter secret
-              jmp admin create exporter $(cat /etc/hostname)-tmp -n $NAMESPACE --label foo=bar --save --insecure-tls-config --nointeractive --out ./dummy.yaml
-              TOKEN=$(yq '.token' dummy.yaml)
-              echo "$TOKEN" > /shared/token
-              oc delete exporter $(cat /etc/hostname)-tmp -n $NAMESPACE
-
               # create the real exporter
 
               kubectl apply -f - << EOF
@@ -150,7 +144,7 @@ spec:
               tls:
                 ca: ''
                 insecure: true
-              token: $(cat /shared/token)
+              token: $(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
               export:
                 console:
                   ref: qemu.console
