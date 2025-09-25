@@ -1,2 +1,0 @@
-# configure the builder access
-cat /home/tooling/.ssh/privateKey | base64 -d > /home/user/.ssh/vm-pk && chmod 600 /home/user/.ssh/vm-pk
