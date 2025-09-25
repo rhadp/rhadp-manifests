@@ -90,7 +90,16 @@ spec:
               oc config use-context qemu-ctx
 
               # create a dummy exporter config, in order to create the exporter RDs
-              jmp admin create exporter $(cat /etc/hostname) -n $NAMESPACE --label platform=qemu-arm --label type=virtual --save --insecure-tls-config --nointeractive --out ./dummy.yaml
+              # check if exporter already exists and delete it if it does
+              EXPORTER_NAME=$(cat /etc/hostname)
+              if oc get exporter "$EXPORTER_NAME" -n $NAMESPACE &>/dev/null; then
+                echo "Exporter $EXPORTER_NAME already exists, deleting it first..."
+                oc delete exporter "$EXPORTER_NAME" -n $NAMESPACE || true
+                # wait a moment for the deletion to complete
+                sleep 2s
+              fi
+              
+              jmp admin create exporter "$EXPORTER_NAME" -n $NAMESPACE --label platform=qemu-arm --label type=virtual --save --insecure-tls-config --nointeractive --out ./dummy.yaml
               TOKEN=$(yq '.token' dummy.yaml)
               echo "$TOKEN" > /shared/token
 
