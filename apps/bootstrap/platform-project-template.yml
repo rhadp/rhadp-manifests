@@ -2,6 +2,7 @@ apiVersion: template.openshift.io/v1
 kind: Template
 metadata:
   name: platform-user-project-admin
+  namespace: openshift-config
 objects:
 - apiVersion: rbac.authorization.k8s.io/v1
   kind: RoleBinding
