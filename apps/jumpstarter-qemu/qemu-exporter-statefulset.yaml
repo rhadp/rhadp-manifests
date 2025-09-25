@@ -157,7 +157,9 @@ spec:
                         guestport: 22
               EOF
               
+              sleep 60s
+
               while true; do
-                sleep 30s
-                #jmp run --exporter-config qemu.yaml
+                #sleep 30s
+                jmp run --exporter-config qemu.yaml
               done
