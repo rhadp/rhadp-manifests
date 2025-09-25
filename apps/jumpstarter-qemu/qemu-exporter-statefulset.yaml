@@ -89,7 +89,19 @@ spec:
 
               oc config use-context qemu-ctx
 
+              # create a dummy exporter config, in order to create the exporter RDs
+              jmp admin create exporter $(cat /etc/hostname) -n $NAMESPACE --label platform=qemu-arm --label type=virtual --save --insecure-tls-config --nointeractive --out ./dummy.yaml
+              TOKEN=$(yq '.token' dummy.yaml)
+              echo "$TOKEN" > /shared/token
+
               # detect the endpoint
+              while [ -z "$ENDPOINT" ]
+              do
+                ENDPOINT=$(kubectl get -n $(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace) \
+                  exporters.jumpstarter.dev $(cat /etc/hostname) -o jsonpath="{.status.endpoint}")
+                sleep 1s
+              done
+              echo "$ENDPOINT" > /shared/endpoint
 
       containers:
         - name: jumpstarter-exporter
@@ -112,6 +124,38 @@ spec:
             - -c
             - |
               set -euxo pipefail
+
+              cat <<EOF > qemu.yaml
+              apiVersion: jumpstarter.dev/v1alpha1
+              kind: ExporterConfig
+              metadata:
+                namespace: $(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace)
+                name: $(cat /etc/hostname)
+              endpoint: $(cat /shared/endpoint)
+              tls:
+                ca: ''
+                insecure: true
+              token: $(cat /shared/token)
+              export:
+                console:
+                  ref: qemu.console
+                flasher:
+                  ref: qemu.flasher
+                power:
+                  ref: qemu.power
+                qemu:
+                  type: jumpstarter_driver_qemu.driver.Qemu
+                  config:
+                    smp: 1
+                    mem: "1G"
+                    default_partitions:
+                      OVMF_CODE.fd: /usr/share/AAVMF/AAVMF_CODE.fd
+                      OVMF_VARS.fd: /usr/share/AAVMF/AAVMF_VARS.fd
+                    hostfwd:
+                      ssh:
+                        hostport: 9022
+                        guestport: 22
+              EOF
               
               while true; do
                 sleep 30s
