@@ -9,7 +9,7 @@ spec:
     type: RollingUpdate
     rollingUpdate:
       maxUnavailable: "100%"
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       exporter-mock: qemu
@@ -66,13 +66,12 @@ spec:
             - |
               set -exo pipefail
 
-              # set ./kube/config correctly
-
               # Extract the values from the mounted service account
               TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
               NAMESPACE=$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace)
               API_SERVER=$(oc whoami --show-server)
 
+              # set ./kube/config correctly
               mkdir -p ~/.kube
 
               oc config set-cluster rhadp \
@@ -89,7 +88,6 @@ spec:
 
               oc config use-context qemu-ctx
 
-              # create a dummy exporter config, in order to create the exporter RDs
               # check if exporter already exists and delete it if it does
               EXPORTER_NAME=$(cat /etc/hostname)
               if oc get exporter "$EXPORTER_NAME" -n $NAMESPACE &>/dev/null; then
@@ -99,9 +97,13 @@ spec:
                 sleep 2s
               fi
               
+              # create the exporter config
               jmp admin create exporter "$EXPORTER_NAME" -n $NAMESPACE --label platform=qemu-arm --label type=virtual --save --insecure-tls-config --nointeractive --out ./dummy.yaml
               TOKEN=$(yq '.token' dummy.yaml)
               echo "$TOKEN" > /shared/token
+
+              # remove the exporter config
+              rm ./dummy.yaml
 
               # detect the endpoint
               while [ -z "$ENDPOINT" ]
@@ -168,7 +170,9 @@ spec:
               
               sleep 60s
 
-              while true; do
-                sleep 30s
-                #jmp run --exporter-config qemu.yaml
-              done
+              jmp run --exporter-config qemu.yaml
+
+              #while true; do
+              #  sleep 30s
+              #  #jmp run --exporter-config qemu.yaml
+              #done
