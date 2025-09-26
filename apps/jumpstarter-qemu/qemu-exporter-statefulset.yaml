@@ -20,13 +20,6 @@ spec:
       annotations:
         openshift.io/required-scc: privileged
     spec:
-      resources:
-        limits:
-          cpu: 2.0
-          memory: "2G"
-        requests:
-          cpu: 1.0
-          memory: "1G"
       #tolerations:
       #- key: "metal"
       #  operator: "Equal"
@@ -118,6 +111,13 @@ spec:
         - name: jumpstarter-exporter
           image: quay.io/rhadp/runtime:latest
           imagePullPolicy: Always
+          resources:
+            limits:
+              cpu: 2.0
+              memory: "2G"
+            requests:
+              cpu: 1.0
+              memory: "1G"
           securityContext:
             privileged: true
           volumeMounts:
