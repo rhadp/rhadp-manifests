@@ -5,10 +5,6 @@ metadata:
 spec:
   serviceName: qemu-exporter
   podManagementPolicy: Parallel
-  updateStrategy:
-    type: RollingUpdate
-    rollingUpdate:
-      maxUnavailable: 1
   replicas: 2
   selector:
     matchLabels:
