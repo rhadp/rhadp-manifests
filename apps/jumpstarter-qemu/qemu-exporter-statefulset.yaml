@@ -87,12 +87,12 @@ spec:
               #fi
               
               # create the exporter config
-              jmp admin create exporter "$EXPORTER_NAME" -n $NAMESPACE --label platform=qemu-arm --label type=virtual --save --insecure-tls-config --nointeractive --out ./dummy.yaml
-              TOKEN=$(yq '.token' dummy.yaml)
-              echo "$TOKEN" > /shared/token
+              #jmp admin create exporter "$EXPORTER_NAME" -n $NAMESPACE --label platform=qemu-arm --label type=virtual --save --insecure-tls-config --nointeractive --out ./dummy.yaml
+              #TOKEN=$(yq '.token' dummy.yaml)
+              #echo "$TOKEN" > /shared/token
 
               # remove the exporter config
-              rm ./dummy.yaml
+              # rm ./dummy.yaml
 
               # detect the endpoint
               while [ -z "$ENDPOINT" ]
