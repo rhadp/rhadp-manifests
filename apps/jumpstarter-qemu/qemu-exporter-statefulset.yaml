@@ -170,5 +170,4 @@ spec:
 
               #while true; do
               #  sleep 30s
-              #  #jmp run --exporter-config qemu.yaml
               #done
