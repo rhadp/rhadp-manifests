@@ -70,7 +70,7 @@ spec:
       - name: runtime
         container:
           sourceMapping: /projects
-          image: "quay.io/rhadp/codespaces:latest"
+          image: "quay.io/mickume/codespaces:latest"
 
     defaultNamespace:
       autoProvision: true
