@@ -60,8 +60,6 @@ spec:
               NAMESPACE=$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace)
               API_SERVER=$(oc whoami --show-server)
 
-              dnf install -y yq
-
               # set ./kube/config correctly
               mkdir -p ~/.kube
 
