@@ -60,39 +60,41 @@ spec:
               NAMESPACE=$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace)
               API_SERVER=$(oc whoami --show-server)
 
+              dnf install -y yq
+
               # set ./kube/config correctly
               mkdir -p ~/.kube
 
-              #oc config set-cluster rhadp \
-              #  --server=$API_SERVER \
-              #  --certificate-authority=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+              oc config set-cluster rhadp \
+                --server=$API_SERVER \
+                --certificate-authority=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
 
-              #oc config set-credentials qemu-sa \
-              #  --token=$TOKEN
+              oc config set-credentials qemu-sa \
+                --token=$TOKEN
 
-              #oc config set-context qemu-ctx \
-              #  --cluster=rhadp \
-              #  --user=qemu-sa \
-              #  --namespace=$NAMESPACE
+              oc config set-context qemu-ctx \
+                --cluster=rhadp \
+                --user=qemu-sa \
+                --namespace=$NAMESPACE
 
-              #oc config use-context qemu-ctx
+              oc config use-context qemu-ctx
 
               # check if exporter already exists and delete it if it does
               EXPORTER_NAME=$(cat /etc/hostname)
-              #if oc get exporter "$EXPORTER_NAME" -n $NAMESPACE &>/dev/null; then
-              #  echo "Exporter $EXPORTER_NAME already exists, deleting it first..."
-              #  oc delete exporter "$EXPORTER_NAME" -n $NAMESPACE || true
-              #  # wait a moment for the deletion to complete
-              #  sleep 2s
-              #fi
+              if oc get exporter "$EXPORTER_NAME" -n $NAMESPACE &>/dev/null; then
+                echo "Exporter $EXPORTER_NAME already exists, deleting it first..."
+                oc delete exporter "$EXPORTER_NAME" -n $NAMESPACE || true
+                # wait a moment for the deletion to complete
+                sleep 2s
+              fi
               
               # create the exporter config
-              #jmp admin create exporter "$EXPORTER_NAME" -n $NAMESPACE --label platform=qemu-arm --label type=virtual --save --insecure-tls-config --nointeractive --out ./dummy.yaml
-              #TOKEN=$(yq '.token' dummy.yaml)
-              #echo "$TOKEN" > /shared/token
+              jmp admin create exporter "$EXPORTER_NAME" -n $NAMESPACE --label platform=qemu-arm --label type=virtual --save --insecure-tls-config --nointeractive --out ./dummy.yaml
+              TOKEN=$(yq '.token' dummy.yaml)
+              echo "$TOKEN" > /shared/token
 
               # remove the exporter config
-              # rm ./dummy.yaml
+              rm ./dummy.yaml
 
               # detect the endpoint
               while [ -z "$ENDPOINT" ]
@@ -166,9 +168,9 @@ spec:
               
               #sleep 60s
 
-              #jmp run --exporter-config qemu.yaml
+              jmp run --exporter-config qemu.yaml
 
-              while true; do
-                sleep 30s
-                #jmp run --exporter-config qemu.yaml
-              done
+              #while true; do
+              #  sleep 30s
+              #  #jmp run --exporter-config qemu.yaml
+              #done
