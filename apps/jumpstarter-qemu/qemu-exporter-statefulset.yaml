@@ -53,7 +53,7 @@ spec:
             - /bin/bash
             - -c
             - |
-              set -exo pipefail
+              set -x
 
               # Extract the values from the mounted service account
               TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
@@ -82,26 +82,7 @@ spec:
               if oc get exporter "$EXPORTER_NAME" -n $NAMESPACE &>/dev/null; then
                 echo "Exporter $EXPORTER_NAME already exists, deleting it first..."
                 oc delete exporter "$EXPORTER_NAME" -n $NAMESPACE || true
-                # wait a moment for the deletion to complete
-                sleep 2s
               fi
-              
-              # create the exporter config
-              jmp admin create exporter "$EXPORTER_NAME" -n $NAMESPACE --label platform=qemu-arm --label type=virtual --save --insecure-tls-config --nointeractive --out ./dummy.yaml
-              TOKEN=$(yq '.token' dummy.yaml)
-              echo "$TOKEN" > /shared/token
-
-              # remove the exporter config
-              rm ./dummy.yaml
-
-              # detect the endpoint
-              while [ -z "$ENDPOINT" ]
-              do
-                ENDPOINT=$(kubectl get -n $(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace) \
-                  exporters.jumpstarter.dev $(cat /etc/hostname) -o jsonpath="{.status.endpoint}")
-                sleep 1s
-              done
-              echo "$ENDPOINT" > /shared/endpoint
 
       containers:
         - name: jumpstarter-exporter
@@ -130,7 +111,48 @@ spec:
             - /bin/bash
             - -c
             - |
-              set -euxo pipefail
+              set -x
+
+              # Extract the values from the mounted service account
+              TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
+              NAMESPACE=$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace)
+              API_SERVER=$(oc whoami --show-server)
+
+              # set ./kube/config correctly
+              mkdir -p ~/.kube
+
+              oc config set-cluster rhadp \
+                --server=$API_SERVER \
+                --certificate-authority=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+
+              oc config set-credentials qemu-sa \
+                --token=$TOKEN
+
+              oc config set-context qemu-ctx \
+                --cluster=rhadp \
+                --user=qemu-sa \
+                --namespace=$NAMESPACE
+
+              oc config use-context qemu-ctx
+
+              # create the exporter config
+              EXPORTER_NAME=$(cat /etc/hostname)
+              
+              jmp admin create exporter "$EXPORTER_NAME" -n $NAMESPACE --label platform=qemu-arm --label type=virtual --save --insecure-tls-config --nointeractive --out ./dummy.yaml
+              TOKEN=$(yq '.token' dummy.yaml)
+              echo "$TOKEN" > /shared/token
+
+              # remove the exporter config
+              rm ./dummy.yaml
+
+              # detect the endpoint
+              while [ -z "$ENDPOINT" ]
+              do
+                ENDPOINT=$(kubectl get -n $(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace) \
+                  exporters.jumpstarter.dev $(cat /etc/hostname) -o jsonpath="{.status.endpoint}")
+                sleep 1s
+              done
+              echo "$ENDPOINT" > /shared/endpoint
 
               cat <<EOF > qemu.yaml
               apiVersion: jumpstarter.dev/v1alpha1
@@ -164,7 +186,7 @@ spec:
                         guestport: 22
               EOF
               
-              #sleep 60s
+              sleep 60s
 
               jmp run --exporter-config qemu.yaml
 
