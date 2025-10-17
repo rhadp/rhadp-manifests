@@ -103,7 +103,7 @@ spec:
         - cdn-upload
       params:
         - name: endpoint
-          value: {{ .Values.jumpstarter.host }}
+          value: ""
         - name: namespace
           value: jumpstarter-qemu-exporter
         - name: name
