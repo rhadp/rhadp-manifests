@@ -19,7 +19,6 @@ spec:
       env:
         - name: HOME
           value: /tekton/home
-      resources: {}
       script: |
         #!/usr/bin/env bash
 
