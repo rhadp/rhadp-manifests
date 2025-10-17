@@ -1,0 +1,135 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: builder-test
+  labels:
+    type: pipeline
+spec:
+  params:
+    - name: source-repo
+      description: source repo that contains the application code
+      type: string
+    - name: source-branch
+      description: source branch to build from
+      type: string
+    - name: tag
+      type: string
+    - description: Component id
+      name: component-id
+      type: string
+    - name: build-stage
+      description: Stage of the build process
+      type: string
+  tasks:
+    - name: git-clone
+      params:
+        - name: url
+          value: $(params.source-repo)
+        - name: revision
+          value: $(params.source-branch)
+      taskRef:
+        kind: ClusterTask
+        name: git-clone
+      workspaces:
+        - name: output
+          workspace: source-folder
+    
+    - name: prepare-build
+      params:
+        - name: build-stage
+          value: $(params.build-stage)
+      taskRef:
+        kind: ClusterTask
+        name: parse-aib-ci
+      runAfter:
+        - git-clone
+      workspaces:
+        - name: source
+          workspace: source-folder
+
+    - name: automotive-image-builder
+      params:
+        - name: job_id
+          value: $(params.source-branch)
+        - name: component_id
+          value: $(params.component-id)
+        - name: manifest-file
+          value: $(tasks.prepare-build.results.manifest-file)
+        - name: distro
+          value: $(tasks.prepare-build.results.distro)
+        - name: arch
+          value: $(tasks.prepare-build.results.arch)
+        - name: target
+          value: $(tasks.prepare-build.results.target)
+        - name: mode
+          value: $(tasks.prepare-build.results.mode)
+        - name: export_format
+          value: $(tasks.prepare-build.results.export_format)
+          
+      taskRef:
+        kind: ClusterTask
+        name: aib-builder-task
+      runAfter:
+        - prepare-build
+      workspaces:
+        - name: source
+          workspace: source-folder
+        - name: dockerconfig
+          workspace: docker-config
+          
+    - name: cdn-upload
+      params:
+        - name: job_id
+          value: $(params.source-branch)
+        - name: component_id
+          value: $(params.component-id)
+        - name: os_image_name
+          value: $(tasks.automotive-image-builder.results.os-image-name)
+      runAfter:
+        - automotive-image-builder
+      taskRef:
+        kind: ClusterTask
+        name: s3-upload-task
+      workspaces:
+        - name: source
+          workspace: source-folder
+
+    - name: jmp-setup-client
+      taskRef:
+        kind: ClusterTask
+        name: jumpstarter-setup-client
+      runAfter:
+        - cdn-upload
+      params:
+        - name: endpoint
+          value: {{ .Values.jumpstarter.host }}
+        - name: namespace
+          value: jumpstarter-qemu-exporter
+        - name: name
+          value: builder-build
+      workspaces:
+        - name: config-dir
+          workspace: source-folder
+          subPath: .jumpstarter
+
+    - name: jmp-test
+      taskRef:
+        kind: ClusterTask
+        name: jumpstarter-run-script
+      runAfter:
+        - jmp-setup-client
+      params:
+        - name: selector
+          value: example.com/board=qemu
+        - name: script
+          value: |
+            j
+      workspaces:
+        - name: config-dir
+          workspace: source-folder
+          subPath: .jumpstarter
+
+  workspaces:
+    - name: source-folder
+    - name: docker-config
