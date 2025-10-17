@@ -1,5 +1,5 @@
-kind: ClusterTask
-apiVersion: tekton.dev/v1beta1
+kind: Task
+apiVersion: tekton.dev/v1
 metadata:
   name: noop
 spec:
