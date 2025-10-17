@@ -7,12 +7,12 @@ spec:
   params:
     - name: git-revision
       description: The git revision
-      default: {{ .Values.git.branch }}
+      default: "main"
     - name: git-repo-url
       description: The repo url
     - name: output-image
       description: reference of the image that will get created
-      default: {{ include "image.dev-url" . }}
+      default: ""
 
   resourcetemplates:
     - apiVersion: tekton.dev/v1beta1
