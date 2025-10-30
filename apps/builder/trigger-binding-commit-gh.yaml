@@ -7,7 +7,7 @@ spec:
     - name: git-repo-url
       value: $(body.repository.git_url)
     - name: git-revision
-      value: $(body.ref)
+      value: $(body.after)
     - name: pusher-name
       value: $(body.pusher.name)
     - name: pusher-email

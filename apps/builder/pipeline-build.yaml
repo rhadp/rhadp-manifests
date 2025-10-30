@@ -29,7 +29,6 @@ spec:
         - name: output
           workspace: source-folder
 
-
   workspaces:
     - name: source-folder
     - name: docker-config
