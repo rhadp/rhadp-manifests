@@ -10,7 +10,7 @@ spec:
       default: ""
   steps:
     - name: noop
-      image: registry.redhat.io/ubi9/python-312
+      image: registry.access.redhat.com/ubi9/python-312:9.6
 
       script: |
         #!/usr/bin/env bash

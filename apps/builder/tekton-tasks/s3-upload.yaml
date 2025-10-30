@@ -35,11 +35,11 @@ spec:
     - name: scripts-location
       description: "Location of the script, relative to the source directory"
       type: string
-      default: "scripts"
+      default: ".scripts"
 
   steps:
     - name: s3-upload
-      image: registry.access.redhat.com/ubi9/python-312:9.5 
+      image: registry.access.redhat.com/ubi9/python-312:9.6
       env:
         - name: AWS_ACCESS_KEY_ID
           valueFrom:
@@ -62,7 +62,7 @@ spec:
 
         set -eux
 
-        REQUIREMENTS_FILE="$(workspaces.source.path)/scripts/requirements.txt"
+        REQUIREMENTS_FILE="$(workspaces.source.path)/$(params.scripts-location)/requirements.txt"
         if [ -f "$REQUIREMENTS_FILE" ]; then
           pip install -r "$REQUIREMENTS_FILE"
         fi

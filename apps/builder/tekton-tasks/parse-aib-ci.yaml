@@ -20,7 +20,7 @@ spec:
     - name: scripts-location
       description: "Location of the script, relative to the source directory"
       type: string
-      default: "scripts"
+      default: ".scripts"
   
   results:
     - name: manifest-file
@@ -38,14 +38,14 @@ spec:
 
   steps:
     - name: parse-aib-ci
-      image: registry.access.redhat.com/ubi9/python-312:9.5 
+      image: registry.access.redhat.com/ubi9/python-312:9.6
       
       script: |
         #!/usr/bin/env bash
 
         set -eux
 
-        REQUIREMENTS_FILE="$(workspaces.source.path)/scripts/requirements.txt"
+        REQUIREMENTS_FILE="$(workspaces.source.path)/$(params.scripts-location)/requirements.txt"
         if [ -f "$REQUIREMENTS_FILE" ]; then
           pip install -r "$REQUIREMENTS_FILE"
         fi
