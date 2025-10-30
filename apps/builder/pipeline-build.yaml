@@ -15,7 +15,11 @@ spec:
       description: source branch to build from
       default: "main"
       type: string
-    
+    - name: build-stage
+      description: Stage of the build process (e.g. develop, release)
+      default: "default"
+      type: string
+
   tasks:
     - name: git-clone
       params:
@@ -28,6 +32,45 @@ spec:
       workspaces:
         - name: output
           workspace: source-folder
+
+    - name: prepare-build
+      params:
+        - name: build-stage
+          value: $(params.build-stage)
+      taskRef:
+        kind: Task
+        name: parse-aib-ci
+      runAfter:
+        - git-clone
+      workspaces:
+        - name: source
+          workspace: source-folder
+
+    - name: automotive-image-builder
+      params:
+        - name: manifest-file
+          value: $(tasks.prepare-build.results.manifest-file)
+        - name: distro
+          value: $(tasks.prepare-build.results.distro)
+        - name: arch
+          value: $(tasks.prepare-build.results.arch)
+        - name: target
+          value: $(tasks.prepare-build.results.target)
+        - name: mode
+          value: $(tasks.prepare-build.results.mode)
+        - name: export_format
+          value: $(tasks.prepare-build.results.export_format)
+
+      taskRef:
+        kind: Task
+        name: aib-builder
+      runAfter:
+        - prepare-build
+      workspaces:
+        - name: source
+          workspace: source-folder
+        - name: dockerconfig
+          workspace: docker-config
 
   workspaces:
     - name: source-folder
