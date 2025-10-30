@@ -199,6 +199,6 @@ spec:
 
   workspaces:
     - name: source
-    - name: dockerconfig
-      description: Includes a docker `config.json`
-      optional: true
+    #- name: dockerconfig
+    #  description: Includes a docker `config.json`
+    #  optional: true
