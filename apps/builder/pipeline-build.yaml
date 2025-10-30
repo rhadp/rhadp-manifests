@@ -19,9 +19,9 @@ spec:
   tasks:
     - name: git-clone
       params:
-        - name: url
+        - name: URL
           value: $(params.source-repo)
-        - name: revision
+        - name: REVISION
           value: $(params.source-branch)
       taskRef:
         name: git
