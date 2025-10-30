@@ -34,8 +34,8 @@ spec:
           #  value: $(tt.params.pusher-name)
           #- name: pusher-email
           #  value: $(tt.params.pusher-email)
-          - name: git-commit-message
-            value: $(tt.params.git-commit-message)
+          #- name: git-commit-message
+          #  value: $(tt.params.git-commit-message)
 
         pipelineRef:
           name: rhadp-builder-build
