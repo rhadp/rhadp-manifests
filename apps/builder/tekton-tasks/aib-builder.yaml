@@ -46,12 +46,12 @@ spec:
   steps:
     - name: aib-build
       image: $(params.container-image)
-      resources:
-        requests:
-          memory: "12Gi"
-          cpu: "1500m"
-        limits:
-          memory: "12Gi"
+      #resources:
+      #  requests:
+      #    memory: "12Gi"
+      #    cpu: "1500m"
+      #  limits:
+      #    memory: "12Gi"
       script: |
         #!/usr/bin/env bash
 
