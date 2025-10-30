@@ -29,7 +29,7 @@ spec:
       default: "aws-credentials"
     # scripts configuration
     - name: script
-      description: "Script to be executed"
+      description: "Script to be execut÷ed"
       type: string
       default: "s3-upload.py"
     - name: scripts-location

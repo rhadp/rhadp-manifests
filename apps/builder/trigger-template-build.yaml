@@ -19,10 +19,20 @@ spec:
         #  backstage.io/kubernetes-id: rhadp-builder
       spec:
         params:
-          - name: source-repo
+          - name: git-repo-url
             value: $(tt.params.git-repo-url)
-          - name: source-branch
+          - name: git-revision
             value: $(tt.params.git-revision)
+          - name: git-repo-name
+            value: $(tt.params.git-repo-name)
+          - name: git-repo-fullname
+            value: $(tt.params.git-repo-fullname)
+          - name: pusher-name
+            value: $(tt.params.pusher-name)
+          - name: pusher-email
+            value: $(tt.params.pusher-email)
+          - name: commit-message
+            value: $(tt.params.commit-message)
   
         pipelineRef:
           name: rhadp-builder-build

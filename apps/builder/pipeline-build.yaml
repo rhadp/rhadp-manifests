@@ -8,13 +8,33 @@ metadata:
     #backstage.io/kubernetes-id: rhadp-builder
 spec:
   params:
-    - name: source-repo
+    - name: git-repo-url
       description: source repo that contains the application code
       type: string
-    - name: source-branch
+    - name: git-revision
       description: source branch to build from
       default: "main"
       type: string
+    - name: git-repo-name
+      description: name of the repository
+      type: string
+      default: "unknown"
+    - name: git-repo-fullname
+      description: full name of the repository
+      type: string
+      default: "unknown"
+    - name: pusher-name
+      description: name of the pusher
+      type: string
+      default: "unknown"
+    - name: pusher-email
+      description: email of the pusher
+      type: string
+      default: "unknown"
+    - name: commit-message
+      description: message of the commit
+      type: string
+      default: "undefined"
     - name: build-stage
       description: Stage of the build process (e.g. develop, release)
       default: "default"
@@ -24,9 +44,9 @@ spec:
     - name: git-clone
       params:
         - name: URL
-          value: $(params.source-repo)
+          value: $(params.git-repo-url)
         - name: REVISION
-          value: $(params.source-branch)
+          value: $(params.git-revision)
       taskRef:
         name: git
       workspaces:
@@ -71,6 +91,23 @@ spec:
           workspace: source-folder
         # name: dockerconfig
         #  workspace: docker-config
+
+    - name: s3-upload
+      params:
+        - name: job_id
+          value: $(params.git-revision)
+        - name: bucket_folder
+          value: $(params.git-repo-fullname)
+        - name: os_image_name
+          value: $(tasks.automotive-image-builder.results.os-image-name)
+      runAfter:
+        - automotive-image-builder
+      taskRef:
+        kind: Task
+        name: s3-upload-task
+      workspaces:
+        - name: source
+          workspace: source-folder
 
   workspaces:
     - name: source-folder
