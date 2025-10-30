@@ -1,0 +1,16 @@
+apiVersion: triggers.tekton.dev/v1beta1
+kind: TriggerBinding
+metadata:
+  name: tb-commit-github
+spec:
+  params:
+    - name: git-repo-url
+      value: $(body.repository.git_url)
+    - name: git-revision
+      value: $(body.ref)
+    - name: pusher-name
+      value: $(body.pusher.name)
+    - name: pusher-email
+      value: $(body.pusher.email)
+    - name: commit-message
+      value: $(body.head_commit.message)
