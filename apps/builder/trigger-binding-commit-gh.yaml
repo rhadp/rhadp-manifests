@@ -5,7 +5,7 @@ metadata:
 spec:
   params:
     - name: git-repo-url
-      value: $(body.repository.git_url)
+      value: $(body.repository.html_url)
     - name: git-revision
       value: $(body.after)
     - name: pusher-name
