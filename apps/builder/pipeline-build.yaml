@@ -35,7 +35,10 @@ spec:
       description: Stage of the build process (e.g. develop, release)
       default: "default"
       type: string
-
+    - name: bucket
+      description: The S3 bucket name
+      type: string
+      default: "rhadp-aib-cdn"
   tasks:
     - name: git-clone
       params:
@@ -90,12 +93,12 @@ spec:
 
     - name: s3-upload
       params:
-        - name: job_id
-          value: $(params.git-revision)
-        - name: bucket_folder
-          value: $(params.git-repo-fullname)
-        - name: os_image_name
-          value: $(tasks.automotive-image-builder.results.os-image-name)
+        - name: source
+          value: $(tasks.automotive-image-builder.results.image-path)
+        - name: bucket
+          value: $(params.bucket)
+        - name: destination
+          value: $(params.git-repo-fullname)/$(tasks.automotive-image-builder.results.image-name)
       runAfter:
         - automotive-image-builder
       taskRef:

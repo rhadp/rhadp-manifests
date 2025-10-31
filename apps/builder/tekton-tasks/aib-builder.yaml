@@ -39,8 +39,11 @@ spec:
       default: "quay.io/centos-sig-automotive/automotive-image-builder:latest"
 
   results:
-    - description: Name of the image built
-      name: os-image-name
+    - description: Name of the image file
+      name: image-name
+      type: string
+    - description: Full path of the image file
+      name: image-path
       type: string
 
   steps:
@@ -167,7 +170,8 @@ spec:
 
         cp -v /output/build.json $(workspaces.source.path)/binaries/build.json || echo "Failed to copy build.json"
 
-        echo -n "$EXPORT_FILE_NAME" > $(results.os-image-name.path)
+        echo -n "$EXPORT_FILE_NAME" > $(results.image-name.path)
+        echo -n "$(workspaces.source.path)/binaries/$EXPORT_FILE_NAME" > $(results.image-path.path)
 
       securityContext:
         capabilities: {}
