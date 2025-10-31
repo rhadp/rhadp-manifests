@@ -49,7 +49,8 @@ spec:
 
         # create the short git commit hash
         cd $(workspaces.source.path)
-        ls -la
+        git config --global --add safe.directory $(workspaces.source.path)
+        
         VERSION="$(git rev-parse --short HEAD)"
         VERSION=${VERSION#v}
         echo -n "$VERSION" > $(results.version.path)
