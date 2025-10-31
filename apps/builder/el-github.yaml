@@ -7,8 +7,8 @@ spec:
   serviceAccountName: pipeline
   triggers:
     - bindings:
-        - kind: ClusterTriggerBinding
-          ref: github-push
+        - kind: TriggerBinding
+          ref: gtb-github-push
       #interceptors: 
       #  - params:
       #      - name: filter

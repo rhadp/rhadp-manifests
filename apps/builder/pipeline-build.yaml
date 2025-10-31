@@ -27,11 +27,7 @@ spec:
       description: name of the pusher
       type: string
       default: "unknown"
-    - name: pusher-email
-      description: email of the pusher
-      type: string
-      default: "unknown"
-    - name: commit-message
+    - name: git-commit-message
       description: message of the commit
       type: string
       default: "undefined"
