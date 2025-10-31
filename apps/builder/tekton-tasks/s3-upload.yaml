@@ -54,8 +54,6 @@ spec:
       script: |
         #!/usr/bin/env bash
 
-        echo "AWS: $AWS_ACCESS_KEY_ID"
-
         set -eux
 
         REQUIREMENTS_FILE="$(workspaces.source.path)/$(params.scripts-location)/requirements.txt"

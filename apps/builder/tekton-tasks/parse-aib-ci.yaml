@@ -35,6 +35,8 @@ spec:
       type: string
     - name: export_format
       type: string
+    - name: version
+      type: string
 
   steps:
     - name: parse-aib-ci
@@ -44,6 +46,12 @@ spec:
         #!/usr/bin/env bash
 
         set -eux
+
+        pwd
+        # create the short git commit hash
+        VERSION="$(git rev-parse --short HEAD)"
+        VERSION=${VERSION#v}
+        echo -n "$VERSION" > $(results.version.path)
 
         REQUIREMENTS_FILE="$(workspaces.source.path)/$(params.scripts-location)/requirements.txt"
         if [ -f "$REQUIREMENTS_FILE" ]; then

@@ -98,7 +98,7 @@ spec:
         - name: bucket
           value: $(params.bucket)
         - name: destination
-          value: $(params.git-repo-fullname)/$(tasks.automotive-image-builder.results.image-name)
+          value: $(params.git-repo-fullname)/$(tasks.prepare-build.results.version)/$(tasks.automotive-image-builder.results.image-name)
       runAfter:
         - automotive-image-builder
       taskRef:
