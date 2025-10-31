@@ -8,7 +8,7 @@ spec:
   triggers:
     - bindings:
         - kind: TriggerBinding
-          ref: gtb-github-push
+          ref: tb-github-push
       #interceptors: 
       #  - params:
       #      - name: filter
