@@ -47,8 +47,9 @@ spec:
 
         set -eux
 
-        pwd
         # create the short git commit hash
+        cd $(workspaces.source.path)
+        
         VERSION="$(git rev-parse --short HEAD)"
         VERSION=${VERSION#v}
         echo -n "$VERSION" > $(results.version.path)
