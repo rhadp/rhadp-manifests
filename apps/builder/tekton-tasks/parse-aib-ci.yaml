@@ -48,12 +48,11 @@ spec:
         set -eux
 
         # create the short git commit hash
-        cd $(workspaces.source.path)
-        git config --global --add safe.directory $(workspaces.source.path)
-        
-        VERSION="$(git rev-parse --short HEAD)"
-        VERSION=${VERSION#v}
-        echo -n "$VERSION" > $(results.version.path)
+        cd $(workspaces.source.path) && \
+          git config --global --add safe.directory $(workspaces.source.path) && \
+          VERSION="$(git rev-parse --short HEAD)" && \
+          VERSION=${VERSION#v} && \
+          echo -n "$VERSION" > $(results.version.path)
 
         REQUIREMENTS_FILE="$(workspaces.source.path)/$(params.scripts-location)/requirements.txt"
         if [ -f "$REQUIREMENTS_FILE" ]; then
