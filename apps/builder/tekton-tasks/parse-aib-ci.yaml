@@ -49,7 +49,7 @@ spec:
 
         # create the short git commit hash
         cd $(workspaces.source.path)
-        
+        ls -la
         VERSION="$(git rev-parse --short HEAD)"
         VERSION=${VERSION#v}
         echo -n "$VERSION" > $(results.version.path)
