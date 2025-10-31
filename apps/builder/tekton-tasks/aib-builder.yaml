@@ -1,7 +1,7 @@
 kind: Task
-apiVersion: tekton.dev/v1
+apiVersion: tekton.dev/v1beta1
 metadata:
-  name: aib-builder-task
+  name: aib-builder
 spec:
   params:
     # job parameters
@@ -33,20 +33,28 @@ spec:
     - name: export_format
       type: string
       default: "qcow2"
-
     - name: container-image
       description: "aib container"
       type: string
-      default: "quay.io/centos-sig-automotive/automotive-image-builder:1.0.0"
+      default: "quay.io/centos-sig-automotive/automotive-image-builder:latest"
 
   results:
-    - description: Name of the image built
-      name: os-image-name
+    - description: Name of the image file
+      name: image-name
+      type: string
+    - description: Full path of the image file
+      name: image-path
       type: string
 
   steps:
     - name: aib-build
       image: $(params.container-image)
+      #resources:
+      #  requests:
+      #    memory: "12Gi"
+      #    cpu: "1500m"
+      #  limits:
+      #    memory: "12Gi"
       script: |
         #!/usr/bin/env bash
 
@@ -101,7 +109,7 @@ spec:
         # build the image
 
         MANIFEST_FILE=$(workspaces.source.path)/$(params.manifest-file)
-
+        
         # Determine file extension
         if [ "$(params.export_format)" = "image" ]; then
           file_extension=".raw"
@@ -135,7 +143,7 @@ spec:
         OSBUILD_CMD="automotive-image-builder --verbose build \
           $CUSTOM_DEFS \
           --distro $(params.distro) --target $(params.target) --arch=$(params.arch) \
-          --build-dir=/output/_build \
+          --build-dir=/_build \
           --export $(params.export_format) \
           --osbuild-manifest=/output/build.json \
           $MODE_PARAM \
@@ -151,7 +159,7 @@ spec:
         # copying build artifacts to shared workspace...
 
         mkdir -p $(workspaces.source.path)/binaries
-
+        
         cp -v /output/${EXPORT_FILE_NAME} $(workspaces.source.path)/binaries/ || echo "Failed to copy ${EXPORT_FILE_NAME}"
 
         cp -vL /output/disk.img $(workspaces.source.path)/binaries/${CANONICAL_NAME}${file_extension} || echo "Failed to copy disk.img"
@@ -162,7 +170,8 @@ spec:
 
         cp -v /output/build.json $(workspaces.source.path)/binaries/build.json || echo "Failed to copy build.json"
 
-        echo -n "$EXPORT_FILE_NAME" > $(results.os-image-name.path)
+        echo -n "$EXPORT_FILE_NAME" > $(results.image-name.path)
+        echo -n "$(workspaces.source.path)/binaries/$EXPORT_FILE_NAME" > $(results.image-path.path)
 
       securityContext:
         capabilities: {}
@@ -178,9 +187,11 @@ spec:
           name: run-dir
         - mountPath: /dev
           name: dev
-
+  
   volumes:
-    - emptyDir: {}
+    - emptyDir:
+        medium: Memory
+        sizeLimit: 10Gi
       name: build-dir
     - emptyDir: {}
       name: output-dir

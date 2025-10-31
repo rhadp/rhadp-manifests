@@ -4,42 +4,36 @@ metadata:
   name: s3-upload-task
 spec:
   params:
-    # job parameters
-    - name: job_id
-      description: "The reference used to track the job and access its assets"
+    - name: source
+      description: "The source file"
       type: string
-      default: ""
-    - name: component_id
-      description: "The component_id the job belongs to"
+    - name: destination
+      description: "The destination file"
       type: string
-      default: ""
-    - name: os_image_name
-      description: "The name of the image"
-      type: string
-      default: ""
-    # s3 parameters
-    - name: bucket_name
+    - name: bucket
       description: "The S3 bucket name"
       type: string
       default: "rhadp-aib-cdn"
+
     # secrets
     - name: aws-secrets-ref
       description: "Secret with the access key and secret key"
       type: string
       default: "aws-credentials"
+    
     # scripts configuration
     - name: script
-      description: "Script to be executed"
+      description: "Script to be execut÷ed"
       type: string
       default: "s3-upload.py"
     - name: scripts-location
       description: "Location of the script, relative to the source directory"
       type: string
-      default: "scripts"
+      default: ".scripts"
 
   steps:
     - name: s3-upload
-      image: registry.access.redhat.com/ubi9/python-312:9.5 
+      image: registry.access.redhat.com/ubi9/python-312:9.6
       env:
         - name: AWS_ACCESS_KEY_ID
           valueFrom:
@@ -62,16 +56,14 @@ spec:
 
         set -eux
 
-        REQUIREMENTS_FILE="$(workspaces.source.path)/scripts/requirements.txt"
+        REQUIREMENTS_FILE="$(workspaces.source.path)/$(params.scripts-location)/requirements.txt"
         if [ -f "$REQUIREMENTS_FILE" ]; then
           pip install -r "$REQUIREMENTS_FILE"
         fi
 
         # run the script
         python "$(workspaces.source.path)/$(params.scripts-location)/$(params.script)" \
-          $(workspaces.source.path)/binaries/$(params.os_image_name) \
-          -b $(params.bucket_name) \
-          -d $(params.component_id)/$(params.job_id)_$(params.os_image_name) \
+          $(params.source) -b $(params.bucket) -d $(params.destination)
 
   workspaces:
     - name: source
