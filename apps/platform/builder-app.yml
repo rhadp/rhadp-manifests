@@ -12,7 +12,7 @@ spec:
   revisionHistoryLimit: 3
   source:
     path: apps/builder
-    repoURL: "https://github.com/rhadp/rhadp-manifests"
+    repoURL: "https://github.com/rhadp/manifests"
     targetRevision: "develop"
     directory:
       recurse: true

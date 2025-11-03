@@ -45,7 +45,7 @@ spec:
             type: CharDevice
       initContainers:
         - name: jumpstarter-init
-          image: quay.io/mickume/runtime:latest
+          image: ghcr.io/rhadp/runtime:latest
           volumeMounts:
             - mountPath: /shared
               name: shared
@@ -86,7 +86,7 @@ spec:
 
       containers:
         - name: jumpstarter-exporter
-          image: quay.io/mickume/runtime:latest
+          image: ghcr.io/rhadp/runtime:latest
           imagePullPolicy: Always
           resources:
             limits:
