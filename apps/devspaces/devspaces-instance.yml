@@ -1,7 +1,7 @@
 apiVersion: org.eclipse.che/v2
 kind: CheCluster
 metadata:
-  name: rhadp-devspaces
+  name: auto-devspaces
   finalizers:
     - checluster.che.eclipse.org
     - cluster-resources.finalizers.che.eclipse.org
