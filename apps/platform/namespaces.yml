@@ -1,10 +1,10 @@
 kind: Namespace
 apiVersion: v1
 metadata:
-  name: rhadp-devspaces
+  name: auto-devspaces
   labels:
     argocd.argoproj.io/managed-by: openshift-gitops
-    argocd.argoproj.io/project: rhadp
+    argocd.argoproj.io/project: rhas
   annotations:
     argocd.argoproj.io/sync-wave: "-1"
 spec:
@@ -14,10 +14,10 @@ spec:
 kind: Namespace
 apiVersion: v1
 metadata:
-  name: rhadp-builder
+  name: auto-builder
   labels:
     argocd.argoproj.io/managed-by: openshift-gitops
-    argocd.argoproj.io/project: rhadp
+    argocd.argoproj.io/project: rhas
   annotations:
     argocd.argoproj.io/sync-wave: "-1"
 spec:

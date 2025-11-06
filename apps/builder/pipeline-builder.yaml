@@ -2,10 +2,10 @@
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
-  name: rhadp-builder-build
+  name: auto-builder-pipeline
   labels:
     type: pipeline
-    #backstage.io/kubernetes-id: rhadp-builder
+    #backstage.io/kubernetes-id: auto-builder
 spec:
   params:
     - name: git-repo-url

@@ -20,6 +20,6 @@ spec:
       #      name: cel
       name: commit-trigger
       template:
-        ref: rhadp-build
+        ref: auto-builder-template
     
     

@@ -2,6 +2,11 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   name: platform-infrastructure-viewer-platform-users
+  labels:
+    argocd.argoproj.io/managed-by: openshift-gitops
+    argocd.argoproj.io/project: rhas
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
@@ -15,6 +20,11 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   name: platform-project-viewer-platform-users
+  labels:
+    argocd.argoproj.io/managed-by: openshift-gitops
+    argocd.argoproj.io/project: rhas
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
@@ -28,6 +38,11 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   name: platform-user-cross-project-viewer-platform-users
+  labels:
+    argocd.argoproj.io/managed-by: openshift-gitops
+    argocd.argoproj.io/project: rhas
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole

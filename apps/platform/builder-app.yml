@@ -1,14 +1,14 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: "rhadp-builder"
+  name: "auto-builder"
   namespace: "openshift-gitops"
   finalizers:
     - resources-finalizer.argocd.argoproj.io
   annotations:
     argocd.argoproj.io/sync-wave: "0"
 spec:
-  project: rhadp
+  project: rhas
   revisionHistoryLimit: 3
   source:
     path: apps/builder
@@ -17,7 +17,7 @@ spec:
     directory:
       recurse: true
   destination:
-    namespace: "rhadp-builder"
+    namespace: "auto-builder"
     server: https://kubernetes.default.svc
   syncPolicy:
     automated:

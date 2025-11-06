@@ -5,7 +5,7 @@ metadata:
 subjects:
   - kind: ServiceAccount
     name: pipeline
-    namespace: rhadp-builder
+    namespace: auto-builder
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
