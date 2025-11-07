@@ -46,6 +46,7 @@ spec:
         serviceAccountName: pipeline
         timeout: 1h0m0s
         
+        # make sure the pipeline run is scheduled on one of the builder nodes
         podTemplate:
           nodeSelector:
             auto.node-role/builder: "true"

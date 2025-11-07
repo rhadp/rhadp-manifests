@@ -63,6 +63,7 @@ spec:
     imagePullPolicy: Always
     deploymentStrategy: Recreate
 
+    # make sure the devspaces instance is scheduled on one of the builder nodes
     nodeSelector:
       auto.node-role/builder: "true"
     tolerations:
