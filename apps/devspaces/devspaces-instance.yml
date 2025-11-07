@@ -65,6 +65,11 @@ spec:
 
     nodeSelector:
       auto.node-role/builder: "true"
+    tolerations:
+      - key: "architecture"
+        operator: "Equal"
+        value: "arm"
+        effect: "NoSchedule"
 
     defaultComponents:
       - name: runtime
