@@ -178,6 +178,7 @@ spec:
         privileged: true
         seLinuxOptions:
           type: unconfined_t
+      
       volumeMounts:
         - mountPath: /_build
           name: build-dir

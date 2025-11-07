@@ -83,6 +83,9 @@ spec:
       taskRef:
         kind: Task
         name: aib-builder
+      podTemplate:
+        nodeSelector:
+          auto.node-role/builder: "true"
       runAfter:
         - prepare-build
       workspaces:

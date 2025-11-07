@@ -64,7 +64,7 @@ spec:
     deploymentStrategy: Recreate
 
     nodeSelector:
-      rhadp.node-role/builder: "true"
+      auto.node-role/builder: "true"
 
     defaultComponents:
       - name: runtime

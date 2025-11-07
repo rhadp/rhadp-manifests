@@ -45,6 +45,9 @@ spec:
 
         serviceAccountName: pipeline
         timeout: 1h0m0s
+        #podTemplate:
+        #  nodeSelector:
+        #    auto.node-role/builder: "true"
         workspaces:
           - name: source-folder
             volumeClaimTemplate:
