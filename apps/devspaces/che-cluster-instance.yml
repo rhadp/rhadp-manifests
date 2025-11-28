@@ -8,7 +8,7 @@ metadata:
     - cheGateway.clusterpermissions.finalizers.che.eclipse.org
     - oauthclients.finalizers.che.eclipse.org
     - dashboard.clusterpermissions.finalizers.che.eclipse.org
-    - container-build.finalizers.che.eclipse.org	
+    - container-build.finalizers.che.eclipse.org
     - consolelink.finalizers.che.eclipse.org
 spec:
   components:
@@ -87,9 +87,9 @@ spec:
         claimSize: 5Gi
       pvcStrategy: per-user
 
-  #gitServices:
-  #  github:
-  #    - secretName: "github-oauth-config"
+  gitServices:
+    github:
+      - secretName: "github-oauth-config"
 
   networking:
     auth:
