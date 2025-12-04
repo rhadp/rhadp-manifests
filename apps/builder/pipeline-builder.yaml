@@ -1,0 +1,114 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: auto-builder-pipeline
+  labels:
+    type: pipeline
+    #backstage.io/kubernetes-id: auto-builder
+spec:
+  params:
+    - name: git-repo-url
+      description: source repo that contains the application code
+      type: string
+    - name: git-revision
+      description: source branch to build from
+      default: "main"
+      type: string
+    - name: git-repo-name
+      description: name of the repository
+      type: string
+      default: "unknown"
+    - name: git-repo-fullname
+      description: full name of the repository
+      type: string
+      default: "unknown"
+    - name: pusher-name
+      description: name of the pusher
+      type: string
+      default: "unknown"
+    - name: git-commit-message
+      description: message of the commit
+      type: string
+      default: "undefined"
+    - name: build-stage
+      description: Stage of the build process (e.g. develop, release)
+      default: "default"
+      type: string
+    - name: bucket
+      description: The S3 bucket name
+      type: string
+      default: "rhadp-aib-cdn"
+  tasks:
+    - name: git-clone
+      params:
+        - name: URL
+          value: $(params.git-repo-url)
+        - name: REVISION
+          value: $(params.git-revision)
+      taskRef:
+        name: git
+      workspaces:
+        - name: output
+          workspace: source-folder
+
+    - name: prepare-build
+      params:
+        - name: build-stage
+          value: $(params.build-stage)
+      taskRef:
+        kind: Task
+        name: parse-aib-ci
+      runAfter:
+        - git-clone
+      workspaces:
+        - name: source
+          workspace: source-folder
+
+    - name: automotive-image-builder
+      params:
+        - name: manifest-file
+          value: $(tasks.prepare-build.results.manifest-file)
+        - name: distro
+          value: $(tasks.prepare-build.results.distro)
+        - name: arch
+          value: $(tasks.prepare-build.results.arch)
+        - name: target
+          value: $(tasks.prepare-build.results.target)
+        - name: mode
+          value: $(tasks.prepare-build.results.mode)
+        - name: export_format
+          value: $(tasks.prepare-build.results.export_format)
+
+      taskRef:
+        kind: Task
+        name: aib-builder
+      
+      runAfter:
+        - prepare-build
+      workspaces:
+        - name: source
+          workspace: source-folder
+        # name: dockerconfig
+        #  workspace: docker-config
+
+    - name: s3-upload
+      params:
+        - name: source
+          value: $(tasks.automotive-image-builder.results.image-path)
+        - name: bucket
+          value: $(params.bucket)
+        - name: destination
+          value: $(params.git-repo-fullname)/$(tasks.prepare-build.results.version)/$(tasks.automotive-image-builder.results.image-name)
+      runAfter:
+        - automotive-image-builder
+      taskRef:
+        kind: Task
+        name: s3-upload-task
+      workspaces:
+        - name: source
+          workspace: source-folder
+
+  workspaces:
+    - name: source-folder
+    - name: docker-config
