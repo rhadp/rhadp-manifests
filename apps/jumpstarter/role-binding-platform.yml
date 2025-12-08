@@ -1,11 +1,11 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: auto-jumpstarter-access-role-platform-users
+  name: jumpstarter-access-role-platform-users
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: auto-jumpstarter-access-role
+  name: jumpstarter-access-role
 subjects:
 - apiGroup: rbac.authorization.k8s.io
   kind: Group
