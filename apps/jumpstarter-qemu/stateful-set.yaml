@@ -26,7 +26,7 @@ spec:
           requiredDuringSchedulingIgnoredDuringExecution:
             nodeSelectorTerms:
             - matchExpressions:
-              - key: rhadp.node-role/metal
+              - key: auto.node-role/metal
                 operator: In
                 values:
                 - "true"
