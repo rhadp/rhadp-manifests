@@ -52,19 +52,6 @@ spec:
         - name: output
           workspace: source-folder
 
-    - name: prepare-build
-      params:
-        - name: build-stage
-          value: $(params.build-stage)
-      taskRef:
-        kind: Task
-        name: parse-aib-ci
-      runAfter:
-        - fetch-repository
-      workspaces:
-        - name: source
-          workspace: source-folder
-
     - name: build
       params:
         - name: manifest-file
@@ -86,7 +73,7 @@ spec:
         name: aib-builder
       
       runAfter:
-        - prepare-build
+        - fetch-repository
       workspaces:
         - name: source
           workspace: source-folder
