@@ -5,7 +5,6 @@ metadata:
   name: auto-builder-pipeline
   labels:
     type: pipeline
-    #backstage.io/kubernetes-id: auto-builder
 spec:
   params:
     - name: git-repo-url

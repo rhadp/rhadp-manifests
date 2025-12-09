@@ -53,7 +53,7 @@ spec:
         set -eux
 
         # run the script
-        python "$(workspaces.source.path)/$(params.script)" $(params.source) -b $(params.bucket) -d $(params.destination)
+        python "$(params.script)" $(params.source) -b $(params.bucket) -d $(params.destination)
 
   workspaces:
     - name: source
