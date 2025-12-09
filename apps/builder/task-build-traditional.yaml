@@ -84,6 +84,8 @@ spec:
 
         cd $(workspaces.source.path)
 
+        VERSION="$(git rev-parse --short HEAD)"
+
         # podman credentials
         if [[ "$(workspaces.dockerconfig.bound)" == "true" ]]; then
 
@@ -116,7 +118,7 @@ spec:
           file_extension=".$(params.format)"
         fi
 
-        CANONICAL_NAME=$(params.distro)-$(params.target)
+        CANONICAL_NAME=$(params.distro)-$(params.target)-${VERSION}
         EXPORT_FILE_NAME=${CANONICAL_NAME}${file_extension}
 
         OSBUILD_CMD="automotive-image-builder --verbose build-traditional \
@@ -132,22 +134,20 @@ spec:
         echo "Running the build command: $OSBUILD_CMD"
         $OSBUILD_CMD
 
-        pushd /output
-        ln -sf ./${EXPORT_FILE_NAME} ./disk.img
+        #pushd /output
+        #ln -sf ./${EXPORT_FILE_NAME} ./disk.img
 
         # copying build artifacts to shared workspace...
-
-        ls -la /output
         
         mkdir -p $(workspaces.source.path)/binaries
         
         cp -v /output/${EXPORT_FILE_NAME} $(workspaces.source.path)/binaries/ || echo "Failed to copy ${EXPORT_FILE_NAME}"
 
-        cp -vL /output/disk.img $(workspaces.source.path)/binaries/${CANONICAL_NAME}${file_extension} || echo "Failed to copy disk.img"
+        #cp -vL /output/disk.img $(workspaces.source.path)/binaries/${CANONICAL_NAME}${file_extension} || echo "Failed to copy disk.img"
 
-        pushd $(workspaces.source.path)
-        ln -sf ${EXPORT_FILE_NAME} disk.img
-        popd
+        #pushd $(workspaces.source.path)
+        #ln -sf ${EXPORT_FILE_NAME} disk.img
+        #popd
 
         cp -v /output/build.json $(workspaces.source.path)/binaries/build.json || echo "Failed to copy build.json"
 
