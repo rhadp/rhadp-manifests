@@ -47,12 +47,14 @@ spec:
       # ghcr.io/rhadp/automotive-image-builder
       # quay.io/centos-sig-automotive/automotive-image-builder:latest
       
-      #resources:
-      #  requests:
-      #    memory: "12Gi"
-      #    cpu: "1500m"
-      #  limits:
-      #    memory: "12Gi"
+      resources:
+        requests:
+          memory: "4Gi"
+          cpu: "1000m"
+        limits:
+          memory: "8Gi"
+          cpu: "2000m"
+
       script: |
         #!/usr/bin/env bash
 
