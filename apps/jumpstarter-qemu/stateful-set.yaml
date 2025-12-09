@@ -63,7 +63,7 @@ spec:
               # set ./kube/config correctly
               mkdir -p ~/.kube
 
-              oc config set-cluster rhadp \
+              oc config set-cluster rhas \
                 --server=$API_SERVER \
                 --certificate-authority=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
 
@@ -71,7 +71,7 @@ spec:
                 --token=$TOKEN
 
               oc config set-context qemu-ctx \
-                --cluster=rhadp \
+                --cluster=rhas \
                 --user=qemu-sa \
                 --namespace=$NAMESPACE
 
