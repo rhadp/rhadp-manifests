@@ -70,7 +70,7 @@ spec:
 
       taskRef:
         kind: Task
-        name: aib-builder
+        name: build-traditional
       
       runAfter:
         - fetch-repository

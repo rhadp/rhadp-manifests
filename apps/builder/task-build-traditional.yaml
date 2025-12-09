@@ -1,7 +1,7 @@
 kind: Task
 apiVersion: tekton.dev/v1beta1
 metadata:
-  name: aib-builder
+  name: build-traditional
 spec:
   params:
     # job parameters
@@ -20,7 +20,7 @@ spec:
       default: "manifests/simple.aib.yml"
     - name: distro
       type: string
-      default: "autosd9"
+      default: "autosd10-sig"
     - name: arch
       type: string
       default: "aarch64"
@@ -30,14 +30,9 @@ spec:
     - name: mode
       type: string
       default: "package"
-    - name: export_format
+    - name: format
       type: string
       default: "qcow2"
-    #- name: container-image
-    #  description: "aib container"
-    #  type: string
-    #  default: "quay.io/centos-sig-automotive/automotive-image-builder:latest"
-
   results:
     - description: Name of the image file
       name: image-name
@@ -113,42 +108,24 @@ spec:
         MANIFEST_FILE=$(workspaces.source.path)/$(params.manifest-file)
         
         # Determine file extension
-        if [ "$(params.export_format)" = "image" ]; then
+        if [ "$(params.format)" = "raw" ]; then
           file_extension=".raw"
-        elif [ "$(params.export_format)" = "qcow2" ]; then
+        elif [ "$(params.format)" = "qcow2" ]; then
           file_extension=".qcow2"
         else
-          file_extension=".$(params.export_format)"
+          file_extension=".$(params.format)"
         fi
 
         CANONICAL_NAME=$(params.distro)-$(params.target)
         EXPORT_FILE_NAME=${CANONICAL_NAME}${file_extension}
 
-        MODE_PARAM=""
-        if [ -n "$(params.mode)" ]; then
-          MODE_PARAM="--mode $(params.mode)"
-        fi
-
-        CUSTOM_DEFS=""
-        CUSTOM_DEFS_FILE="$(workspaces.source.path)/manifests/custom-definitions.env"
-        if [ -f "$CUSTOM_DEFS_FILE" ]; then
-          echo "Processing custom definitions from $CUSTOM_DEFS_FILE"
-          while read -r line || [[ -n "$line" ]]; do
-            for def in $line; do
-              CUSTOM_DEFS+=" --define $def"
-            done
-          done < "$CUSTOM_DEFS_FILE"
-        else
-          echo "No custom-definitions.env file found"
-        fi
-
-        OSBUILD_CMD="automotive-image-builder --verbose build \
-          $CUSTOM_DEFS \
-          --distro $(params.distro) --target $(params.target) --arch=$(params.arch) \
+        OSBUILD_CMD="automotive-image-builder --verbose build-traditional \
+          --distro $(params.distro) \
+          --target $(params.target) \
+          --format $(params.format) \
+          --arch=$(params.arch) \
           --build-dir=/_build \
-          --export $(params.export_format) \
           --osbuild-manifest=/output/build.json \
-          $MODE_PARAM \
           $MANIFEST_FILE \
           /output/${EXPORT_FILE_NAME}"
 
@@ -160,6 +137,8 @@ spec:
 
         # copying build artifacts to shared workspace...
 
+        ls -la /output
+        
         mkdir -p $(workspaces.source.path)/binaries
         
         cp -v /output/${EXPORT_FILE_NAME} $(workspaces.source.path)/binaries/ || echo "Failed to copy ${EXPORT_FILE_NAME}"
