@@ -84,8 +84,6 @@ spec:
 
         cd $(workspaces.source.path)
 
-        VERSION="$(git rev-parse --short HEAD)"
-
         # podman credentials
         if [[ "$(workspaces.dockerconfig.bound)" == "true" ]]; then
 
@@ -118,7 +116,7 @@ spec:
           file_extension=".$(params.format)"
         fi
 
-        CANONICAL_NAME=$(params.distro)-$(params.target)-${VERSION}
+        CANONICAL_NAME=$(params.distro)-$(params.target)
         EXPORT_FILE_NAME=${CANONICAL_NAME}${file_extension}
 
         OSBUILD_CMD="automotive-image-builder --verbose build-traditional \

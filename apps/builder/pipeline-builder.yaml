@@ -86,7 +86,7 @@ spec:
         - name: bucket
           value: $(params.bucket)
         - name: destination
-          value: $(params.git-repo-fullname)/$(tasks.build.results.image-name)
+          value: $(params.git-repo-fullname)/$(params.git-revision)/$(tasks.build.results.image-name)
       runAfter:
         - build
       taskRef:
