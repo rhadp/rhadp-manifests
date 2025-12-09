@@ -83,11 +83,11 @@ spec:
     - name: upload
       params:
         - name: source
-          value: $(tasks.automotive-image-builder.results.image-path)
+          value: $(tasks.build.results.image-path)
         - name: bucket
           value: $(params.bucket)
         - name: destination
-          value: $(params.git-repo-fullname)/$(tasks.prepare-build.results.version)/$(tasks.automotive-image-builder.results.image-name)
+          value: $(params.git-repo-fullname)/$(tasks.build.results.image-name)
       runAfter:
         - build
       taskRef:
