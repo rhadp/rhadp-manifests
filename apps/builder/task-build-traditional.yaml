@@ -43,8 +43,9 @@ spec:
 
   steps:
     - name: aib-build
-      image: ghcr.io/rhadp/automotive-image-builder
-      # "quay.io/centos-sig-automotive/automotive-image-builder:latest"
+      image: quay.io/centos-sig-automotive/automotive-image-builder:latest
+      # ghcr.io/rhadp/automotive-image-builder
+      # quay.io/centos-sig-automotive/automotive-image-builder:latest
       
       #resources:
       #  requests:
@@ -106,18 +107,8 @@ spec:
         # build the image
 
         MANIFEST_FILE=$(workspaces.source.path)/$(params.manifest-file)
-        
-        # Determine file extension
-        if [ "$(params.format)" = "raw" ]; then
-          file_extension=".raw"
-        elif [ "$(params.format)" = "qcow2" ]; then
-          file_extension=".qcow2"
-        else
-          file_extension=".$(params.format)"
-        fi
-
         CANONICAL_NAME=$(params.distro)-$(params.target)
-        EXPORT_FILE_NAME=${CANONICAL_NAME}${file_extension}
+        EXPORT_FILE_NAME=${CANONICAL_NAME}.$(params.format)
 
         OSBUILD_CMD="automotive-image-builder --verbose build-traditional \
           --distro $(params.distro) \
@@ -132,22 +123,12 @@ spec:
         echo "Running the build command: $OSBUILD_CMD"
         $OSBUILD_CMD
 
-        #pushd /output
-        #ln -sf ./${EXPORT_FILE_NAME} ./disk.img
-
         # copying build artifacts to shared workspace...
         
         mkdir -p $(workspaces.source.path)/binaries
         
-        cp -v /output/${EXPORT_FILE_NAME} $(workspaces.source.path)/binaries/ || echo "Failed to copy ${EXPORT_FILE_NAME}"
-
-        #cp -vL /output/disk.img $(workspaces.source.path)/binaries/${CANONICAL_NAME}${file_extension} || echo "Failed to copy disk.img"
-
-        #pushd $(workspaces.source.path)
-        #ln -sf ${EXPORT_FILE_NAME} disk.img
-        #popd
-
-        cp -v /output/build.json $(workspaces.source.path)/binaries/build.json || echo "Failed to copy build.json"
+        cp -v /output/${EXPORT_FILE_NAME} $(workspaces.source.path)/binaries/ 
+        cp -v /output/build.json $(workspaces.source.path)/binaries/build.json
 
         echo -n "$EXPORT_FILE_NAME" > $(results.image-name.path)
         echo -n "$(workspaces.source.path)/binaries/$EXPORT_FILE_NAME" > $(results.image-path.path)
