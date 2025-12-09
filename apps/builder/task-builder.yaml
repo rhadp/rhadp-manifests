@@ -36,7 +36,8 @@ spec:
     - name: container-image
       description: "aib container"
       type: string
-      default: "quay.io/centos-sig-automotive/automotive-image-builder:latest"
+      default: "ghcr.io/rhadp/automotive-image-builder:latest"
+      #default: "quay.io/centos-sig-automotive/automotive-image-builder:latest"
 
   results:
     - description: Name of the image file
