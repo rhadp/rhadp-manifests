@@ -33,11 +33,10 @@ spec:
     - name: export_format
       type: string
       default: "qcow2"
-    - name: container-image
-      description: "aib container"
-      type: string
-      default: "ghcr.io/rhadp/automotive-image-builder:latest"
-      #default: "quay.io/centos-sig-automotive/automotive-image-builder:latest"
+    #- name: container-image
+    #  description: "aib container"
+    #  type: string
+    #  default: "quay.io/centos-sig-automotive/automotive-image-builder:latest"
 
   results:
     - description: Name of the image file
@@ -49,7 +48,9 @@ spec:
 
   steps:
     - name: aib-build
-      image: $(params.container-image)
+      image: ghcr.io/rhadp/automotive-image-builder
+      # "quay.io/centos-sig-automotive/automotive-image-builder:latest"
+      
       #resources:
       #  requests:
       #    memory: "12Gi"
