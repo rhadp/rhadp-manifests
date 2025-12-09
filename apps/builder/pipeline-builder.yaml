@@ -40,7 +40,7 @@ spec:
       type: string
       default: "rhadp-aib-cdn"
   tasks:
-    - name: git-clone
+    - name: fetch-repository
       params:
         - name: URL
           value: $(params.git-repo-url)
@@ -60,25 +60,26 @@ spec:
         kind: Task
         name: parse-aib-ci
       runAfter:
-        - git-clone
+        - fetch-repository
       workspaces:
         - name: source
           workspace: source-folder
 
-    - name: automotive-image-builder
+    - name: build
       params:
         - name: manifest-file
-          value: $(tasks.prepare-build.results.manifest-file)
-        - name: distro
-          value: $(tasks.prepare-build.results.distro)
-        - name: arch
-          value: $(tasks.prepare-build.results.arch)
-        - name: target
-          value: $(tasks.prepare-build.results.target)
-        - name: mode
-          value: $(tasks.prepare-build.results.mode)
-        - name: export_format
-          value: $(tasks.prepare-build.results.export_format)
+          #value: $(tasks.prepare-build.results.manifest-file)
+          value: "manifests/simple.aib.yml"
+        #- name: distro
+        #  value: $(tasks.prepare-build.results.distro)
+        #- name: arch
+        #  value: $(tasks.prepare-build.results.arch)
+        #- name: target
+        #  value: $(tasks.prepare-build.results.target)
+        #- name: mode
+        #  value: $(tasks.prepare-build.results.mode)
+        #- name: export_format
+        #  value: $(tasks.prepare-build.results.export_format)
 
       taskRef:
         kind: Task
@@ -92,7 +93,7 @@ spec:
         # name: dockerconfig
         #  workspace: docker-config
 
-    - name: s3-upload
+    - name: upload
       params:
         - name: source
           value: $(tasks.automotive-image-builder.results.image-path)
@@ -101,10 +102,10 @@ spec:
         - name: destination
           value: $(params.git-repo-fullname)/$(tasks.prepare-build.results.version)/$(tasks.automotive-image-builder.results.image-name)
       runAfter:
-        - automotive-image-builder
+        - build
       taskRef:
         kind: Task
-        name: s3-upload-task
+        name: s3-upload
       workspaces:
         - name: source
           workspace: source-folder
