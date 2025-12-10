@@ -1,0 +1,52 @@
+kind: Task
+apiVersion: tekton.dev/v1
+metadata:
+  name: build-prepare
+spec:
+  params:
+    # job parameters
+    - name: JOB_ID
+      description: "the reference used to track the job and access its assets"
+      type: string
+      default: ""
+    # aib build parameters
+    - name: MANIFEST_FILE
+      description: "manifest file to build"
+      type: string
+      default: ""
+  results:
+    - name: MANIFEST_FILE
+      description: "manifest file to build"
+      type: string
+    - name: VERSION
+      description: "version of the build"
+      type: string
+  steps:
+    - name: prepare-build
+      image: ghcr.io/rhadp/pipeline:latest
+      
+      script: |
+        #!/usr/bin/env bash
+
+        set -euxo pipefail
+
+        cd $(workspaces.source.path)
+
+        # check if there are any tags, if not use a default version
+        if git describe --tags --exact-match HEAD 2>/dev/null; then
+          VERSION=$(git describe --tags --exact-match HEAD)
+        elif git describe --tags 2>/dev/null; then
+          VERSION=$(git describe --tags)
+        else
+          VERSION="$(git rev-parse --short HEAD)"
+        fi
+        VERSION=${VERSION#v} # remove the leading v prefix for version
+        echo "VERSION=${VERSION}" > $(results.VERSION.path)
+
+        # discover the manifest file
+        TMP_MANIFEST_FILE=$(params.MANIFEST_FILE)
+        MANIFEST_FILE="${TMP_MANIFEST_FILE:-manifests/simple.aib.yml}"
+        echo "MANIFEST_FILE=${MANIFEST_FILE}" > $(results.MANIFEST_FILE.path)
+
+  workspaces:
+    - name: source

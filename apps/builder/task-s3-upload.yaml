@@ -4,25 +4,24 @@ metadata:
   name: s3-upload
 spec:
   params:
-    - name: source
+    # file parameters
+    - name: SOURCE
       description: "The source file"
       type: string
-    - name: destination
+    - name: DESTINATION
       description: "The destination file"
       type: string
-    - name: bucket
+    - name: BUCKET
       description: "The S3 bucket name"
       type: string
       default: "rhadp-aib-cdn"
-
-    # secrets
-    - name: aws-secrets-ref
+    # AWS credentials
+    - name: AWS_SECRETS_REF
       description: "Secret with the access key and secret key"
       type: string
       default: "aws-credentials"
-    
     # scripts configuration
-    - name: script
+    - name: SCRIPT
       description: "Script to be executed"
       type: string
       default: "/home/user/s3-upload.py"
@@ -35,25 +34,25 @@ spec:
           valueFrom:
             secretKeyRef:
               key: aws_access_key_id
-              name: $(params.aws-secrets-ref)
+              name: $(params.AWS_SECRETS_REF)
         - name: AWS_SECRET_ACCESS_KEY
           valueFrom:
             secretKeyRef:
               key: aws_secret_access_key
-              name: $(params.aws-secrets-ref)
+              name: $(params.AWS_SECRETS_REF)
         - name: AWS_REGION
           valueFrom:
             secretKeyRef:
               key: aws_default_region
-              name: $(params.aws-secrets-ref)
+              name: $(params.AWS_SECRETS_REF)
 
       script: |
         #!/usr/bin/env bash
 
-        set -eux
+        set -euxo pipefail
 
         # run the script
-        python "$(params.script)" $(params.source) -b $(params.bucket) -d $(params.destination)
+        python "$(params.SCRIPT)" $(params.SOURCE) -b $(params.BUCKET) -d $(params.DESTINATION)
 
   workspaces:
     - name: source

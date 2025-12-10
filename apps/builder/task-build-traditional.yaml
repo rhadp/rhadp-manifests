@@ -5,40 +5,33 @@ metadata:
 spec:
   params:
     # job parameters
-    - name: job_id
+    - name: JOB_ID
       description: "the reference used to track the job and access its assets"
       type: string
       default: ""
-    - name: component_id
-      description: "the component_id the job belongs to"
-      type: string
-      default: ""
     # aib build parameters
-    - name: manifest-file
+    - name: MANIFEST_FILE
       description: "manifest file to build"
       type: string
       default: "manifests/simple.aib.yml"
-    - name: distro
+    - name: DISTRO
       type: string
       default: "autosd10-sig"
-    - name: arch
+    - name: ARCH
       type: string
       default: "aarch64"
-    - name: target
+    - name: TARGET
       type: string
-      default: "qemu"
-    - name: mode
-      type: string
-      default: "package"
-    - name: format
+      default: "qemu" 
+    - name: EXPORT_FORMAT
       type: string
       default: "qcow2"
   results:
     - description: Name of the image file
-      name: image-name
+      name: IMAGE_NAME
       type: string
     - description: Full path of the image file
-      name: image-path
+      name: IMAGE_PATH
       type: string
 
   steps:
@@ -108,15 +101,15 @@ spec:
 
         # build the image
 
-        MANIFEST_FILE=$(workspaces.source.path)/$(params.manifest-file)
-        CANONICAL_NAME=$(params.distro)-$(params.target)
-        EXPORT_FILE_NAME=${CANONICAL_NAME}.$(params.format)
+        MANIFEST_FILE=$(workspaces.source.path)/$(params.MANIFEST_FILE)
+        CANONICAL_NAME=$(params.DISTRO)-$(params.TARGET)
+        EXPORT_FILE_NAME=${CANONICAL_NAME}.$(params.EXPORT_FORMAT)
 
         OSBUILD_CMD="automotive-image-builder --verbose build-traditional \
-          --distro $(params.distro) \
-          --target $(params.target) \
-          --format $(params.format) \
-          --arch=$(params.arch) \
+          --distro $(params.DISTRO) \
+          --target $(params.TARGET) \
+          --format $(params.EXPORT_FORMAT) \
+          --arch=$(params.ARCH) \
           --build-dir=/_build \
           --osbuild-manifest=/output/build.json \
           $MANIFEST_FILE \
@@ -132,8 +125,8 @@ spec:
         cp -v /output/${EXPORT_FILE_NAME} $(workspaces.source.path)/binaries/ 
         cp -v /output/build.json $(workspaces.source.path)/binaries/build.json
 
-        echo -n "$EXPORT_FILE_NAME" > $(results.image-name.path)
-        echo -n "$(workspaces.source.path)/binaries/$EXPORT_FILE_NAME" > $(results.image-path.path)
+        echo -n "$EXPORT_FILE_NAME" > $(results.IMAGE_NAME.path)
+        echo -n "$(workspaces.source.path)/binaries/$EXPORT_FILE_NAME" > $(results.IMAGE_PATH.path)
 
       securityContext:
         capabilities: {}

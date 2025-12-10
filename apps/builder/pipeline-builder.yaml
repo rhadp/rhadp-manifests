@@ -51,28 +51,33 @@ spec:
         - name: output
           workspace: source-folder
 
+    - name: prepare
+      #params:
+      #  - name: MANIFEST_FILE
+      #    #value: $(tasks.prepare.results.MANIFEST_FILE)
+      #    #value: "manifests/simple.aib.yml"
+
+      taskRef:
+        kind: Task
+        name: build-prepare
+      
+      runAfter:
+        - fetch-repository
+      workspaces:
+        - name: source
+          workspace: source-folder
+
     - name: build
       params:
-        - name: manifest-file
-          #value: $(tasks.prepare-build.results.manifest-file)
-          value: "manifests/simple.aib.yml"
-        #- name: distro
-        #  value: $(tasks.prepare-build.results.distro)
-        #- name: arch
-        #  value: $(tasks.prepare-build.results.arch)
-        #- name: target
-        #  value: $(tasks.prepare-build.results.target)
-        #- name: mode
-        #  value: $(tasks.prepare-build.results.mode)
-        #- name: export_format
-        #  value: $(tasks.prepare-build.results.export_format)
+        - name: MANIFEST_FILE
+          value: $(tasks.prepare.results.MANIFEST_FILE)
 
       taskRef:
         kind: Task
         name: build-traditional
       
       runAfter:
-        - fetch-repository
+        - prepare
       workspaces:
         - name: source
           workspace: source-folder
@@ -81,12 +86,12 @@ spec:
 
     - name: upload
       params:
-        - name: source
-          value: $(tasks.build.results.image-path)
-        - name: bucket
+        - name: SOURCE
+          value: $(tasks.build.results.IMAGE_PATH)
+        - name: BUCKET
           value: $(params.bucket)
-        - name: destination
-          value: $(params.git-repo-fullname)/$(params.git-revision)-$(tasks.build.results.image-name)
+        - name: DESTINATION
+          value: $(params.git-repo-fullname)/$(tasks.prepare.results.VERSION)-$(tasks.build.results.IMAGE_NAME)
       runAfter:
         - build
       taskRef:
