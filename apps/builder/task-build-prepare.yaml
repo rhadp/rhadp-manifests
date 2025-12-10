@@ -15,8 +15,8 @@ spec:
       type: string
       default: ""
   results:
-    - name: MANIFEST_FILE
-      description: "manifest file to build"
+    - name: EFFECTIVE_MANIFEST_FILE
+      description: "effective manifest file used to build the image"
       type: string
     - name: VERSION
       description: "version of the build"
@@ -24,13 +24,17 @@ spec:
   steps:
     - name: prepare-build
       image: ghcr.io/rhadp/pipeline:latest
-      
+      env:
+        - name: PARAM_MANIFEST_FILE
+          value: $(params.MANIFEST_FILE)
       script: |
         #!/usr/bin/env bash
 
         set -euxo pipefail
 
         cd $(workspaces.source.path)
+
+        git config --global --add safe.directory $(workspaces.source.path)
 
         # check if there are any tags, if not use a default version
         if git describe --tags --exact-match HEAD 2>/dev/null; then
@@ -44,9 +48,12 @@ spec:
         echo "VERSION=${VERSION}" > $(results.VERSION.path)
 
         # discover the manifest file
-        TMP_MANIFEST_FILE=$(params.MANIFEST_FILE)
-        MANIFEST_FILE="${TMP_MANIFEST_FILE:-manifests/simple.aib.yml}"
-        echo "MANIFEST_FILE=${MANIFEST_FILE}" > $(results.MANIFEST_FILE.path)
+        if [ -n "$PARAM_MANIFEST_FILE" ] && [ -f "$PARAM_MANIFEST_FILE" ]; then
+          MANIFEST_FILE="$PARAM_MANIFEST_FILE"
+        else
+          MANIFEST_FILE="manifests/simple.aib.yml"
+        fi
+        echo "MANIFEST_FILE=${MANIFEST_FILE}" > $(results.EFFECTIVE_MANIFEST_FILE.path)
 
   workspaces:
     - name: source

@@ -70,7 +70,7 @@ spec:
     - name: build
       params:
         - name: MANIFEST_FILE
-          value: $(tasks.prepare.results.MANIFEST_FILE)
+          value: $(tasks.prepare.results.EFFECTIVE_MANIFEST_FILE)
 
       taskRef:
         kind: Task
