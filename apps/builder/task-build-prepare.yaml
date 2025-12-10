@@ -45,15 +45,15 @@ spec:
           VERSION="$(git rev-parse --short HEAD)"
         fi
         VERSION=${VERSION#v} # remove the leading v prefix for version
-        echo "VERSION=${VERSION}" > $(results.VERSION.path)
-
+        echo -n "$VERSION" > $(results.VERSION.path)
+        
         # discover the manifest file
         if [ -n "$PARAM_MANIFEST_FILE" ] && [ -f "$PARAM_MANIFEST_FILE" ]; then
           MANIFEST_FILE="$PARAM_MANIFEST_FILE"
         else
           MANIFEST_FILE="manifests/simple.aib.yml"
         fi
-        echo "MANIFEST_FILE=${MANIFEST_FILE}" > $(results.EFFECTIVE_MANIFEST_FILE.path)
+        echo -n "$MANIFEST_FILE" > $(results.EFFECTIVE_MANIFEST_FILE.path)
 
   workspaces:
     - name: source
