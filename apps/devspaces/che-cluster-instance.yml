@@ -49,6 +49,14 @@ spec:
     containerBuildConfiguration:
       openShiftSecurityContextConstraint: container-build
 
+    defaultContainerResources:
+      limits:
+        cpu: "2"
+        memory: 4Gi
+      requests:
+        cpu: "500m"
+        memory: 1Gi
+
     ignoredUnrecoverableEvents:
       - FailedScheduling
 
@@ -77,6 +85,10 @@ spec:
         container:
           sourceMapping: /projects
           image: "ghcr.io/rhadp/codespaces:latest"
+          memoryLimit: 4Gi
+          cpuLimit: 2000m
+          memoryRequest: 1Gi
+          cpuRequest: 500m
 
     defaultNamespace:
       autoProvision: true
@@ -84,7 +96,7 @@ spec:
 
     storage:
       perUserStrategyPvcConfig:
-        claimSize: 5Gi
+        claimSize: 2Gi
       pvcStrategy: per-user
 
   #itServices:

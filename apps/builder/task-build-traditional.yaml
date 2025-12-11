@@ -80,7 +80,7 @@ spec:
 
         cd $(workspaces.source.path)
 
-        # podman credentials
+        # setup podman credentials
         if [[ "$(workspaces.dockerconfig.bound)" == "true" ]]; then
 
           # if config.json exists at workspace root, we use that
