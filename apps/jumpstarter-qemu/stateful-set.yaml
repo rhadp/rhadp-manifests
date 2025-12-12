@@ -135,6 +135,9 @@ spec:
 
               oc config use-context qemu-ctx
 
+              # update to latest jumpstarter version
+              uv pip install --reinstall "git+https://github.com/rhadp/jumpstarter@develop#subdirectory=packages/jumpstarter-all"
+
               # create the exporter config
               EXPORTER_NAME=$(cat /etc/hostname)
               
